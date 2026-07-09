@@ -265,6 +265,11 @@ Current Description: ${product.descriptionHtml ? product.descriptionHtml.replace
 
 INSTRUCTIONS:
 
+CRITICAL - NO HALLUCINATIONS:
+- Do not assume, invent, or extrapolate product specifications, materials, dimensions, or features that are not explicitly provided in the input data (Product Title, Tags, SKU, or Current Description).
+- If a detail is missing (such as weight, dimensions, color, or exact material composition), omit it entirely from the output JSON. Do not guess.
+- Do not claim a part has features or fitment capabilities that are not explicitly mentioned in the source details.
+
 1. "clean_title": Rewrite the title to be clean, short, customer-friendly, and optimized for SEO.
    - For aftermarket parts, use the structure: "Aftermarket [Part Name] Suitable for [Series / Model]".
    - CRITICAL: Omit manufacturer branding (like "Toyota LandCruiser" or "Nissan Patrol") from the clean title if it is aftermarket. Use only the series or clean model name.
