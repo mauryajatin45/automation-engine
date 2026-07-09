@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Auto - AI Copywriter Review Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Sidebar: Product List & Search -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-logo">TRACK AUTO</div>
+          <div class="brand-sub">AI Copy Review</div>
+        </div>
+        <div class="search-box">
+          <input type="text" id="search-input" class="search-input" placeholder="Search by title, SKU...">
+        </div>
+        <div class="filter-group">
+          <button class="filter-btn active" id="filter-all" data-filter="all">All</button>
+          <button class="filter-btn" id="filter-pending" data-filter="pending">Pending</button>
+          <button class="filter-btn" id="filter-reviewed" data-filter="reviewed">Reviewed</button>
+        </div>
+      </div>
+      
+      <!-- Products List Scroll Area -->
+      <div class="product-list" id="product-list-container">
+        <!-- Products will load dynamically here -->
+      </div>
+    </div>
+    
+    <!-- Main Panel: Product View & AI generation -->
+    <div class="main-view" id="main-view-container">
+      
+      <div class="no-selection" id="no-selection-view">
+        <div class="no-selection-icon">🚘</div>
+        <h2>Select a product from the list to begin editing</h2>
+        <p>Review technical descriptions, SEO tags, and metafields before publishing.</p>
+      </div>
+      
+      <!-- Loaded Editor Panel -->
+      <div class="editor-container" id="editor-view" style="display: none;">
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loading-overlay" style="display: none;">
+          <div class="spinner"></div>
+          <div class="loading-text" id="loading-overlay-text">Generating AI Suggestions...</div>
+        </div>
+
+        <div class="editor-header">
+          <div class="editor-title-area">
+            <h1 id="p-title-display">Product Title</h1>
+            <div class="editor-meta-info">
+              <span>Status: <strong id="p-status" style="text-transform: uppercase;">draft</strong></span>
+              <span>•</span>
+              <span>SKU: <strong id="p-sku">SKU-100</strong></span>
+              <span>•</span>
+              <span>Vendor: <strong id="p-vendor">Track Auto</strong></span>
+            </div>
+          </div>
+          <div class="editor-actions">
+            <button class="action-btn btn-primary" id="btn-generate-ai">
+              ⚡ Generate AI Proposal
+            </button>
+          </div>
+        </div>
+        
+        <div class="editor-body">
+          
+          <!-- Column Left: Original Copy Preview -->
+          <div class="editor-column editor-column-left">
+            <div class="column-header">
+              <span>Original Copy (Current Shopify)</span>
+            </div>
+            <div class="column-content">
+              <div class="card">
+                <div class="card-title">Original Description</div>
+                <div class="preview-html" id="original-desc-preview">
+                  <!-- Original Shopify HTML Description goes here -->
+                </div>
+              </div>
+              
+              <div class="card">
+                <div class="card-title">Current Search Listing (SEO)</div>
+                <div class="form-group">
+                  <div class="form-label">SEO Title</div>
+                  <div class="preview-html" id="original-seo-title" style="font-weight: 600;">-</div>
+                </div>
+                <div class="form-group">
+                  <div class="form-label">Meta Description</div>
+                  <div class="preview-html" id="original-seo-desc" style="color: var(--text-muted);">-</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Column Right: AI Proposed Content & Live Editor -->
+          <div class="editor-column">
+            <div class="column-header" style="border-bottom: 1px solid var(--border-color); background: var(--bg-secondary);">
+              <span>AI Proposal & Editor</span>
+              <span class="badge" id="ai-generation-badge" style="display: none; background: var(--primary-light); color: var(--primary);">SUGGESTION LOADED</span>
+            </div>
+            <div class="column-content">
+              
+              <!-- Tab 1: Description Editor -->
+              <div class="card">
+                <div class="card-title">Proposed Description HTML</div>
+                <div class="form-group">
+                  <textarea id="edit-description-html" class="form-input form-textarea description-editor" placeholder="Proposed description html... Generate preview to load details."></textarea>
+                </div>
+              </div>
+              
+              <!-- Tab 2: SEO Meta Settings -->
+              <div class="card">
+                <div class="card-title">Proposed SEO / Search Listing</div>
+                <div class="form-group">
+                  <div class="form-label">
+                    <span>SEO Title (Max 70 Chars)</span>
+                    <span class="char-counter" id="seo-title-counter">0 / 70</span>
+                  </div>
+                  <input type="text" id="edit-seo-title" class="form-input" placeholder="Generate AI to suggest SEO Title">
+                </div>
+                <div class="form-group">
+                  <div class="form-label">
+                    <span>Meta Description (Max 160 Chars)</span>
+                    <span class="char-counter" id="seo-desc-counter">0 / 160</span>
+                  </div>
+                  <textarea id="edit-seo-desc" class="form-input form-textarea" style="height: 80px;" placeholder="Generate AI to suggest SEO Meta Description"></textarea>
+                </div>
+              </div>
+              
+              <!-- Tab 3: Navigation and Specs Fields -->
+              <div class="card">
+                <div class="card-title">Proposed Categorization & Metafields</div>
+                <div class="specs-grid">
+                  <div class="form-group">
+                    <div class="form-label">Product Type</div>
+                    <input type="text" id="edit-product-type" class="form-input" placeholder="e.g. Doors">
+                  </div>
+                  <div class="form-group">
+                    <div class="form-label">Department</div>
+                    <input type="text" id="edit-meta-department" class="form-input" placeholder="e.g. Vehicle Parts">
+                  </div>
+                  <div class="form-group">
+                    <div class="form-label">Vehicle Make</div>
+                    <input type="text" id="edit-meta-make" class="form-input" placeholder="e.g. Toyota">
+                  </div>
+                  <div class="form-group">
+                    <div class="form-label">Vehicle Model</div>
+                    <input type="text" id="edit-meta-model" class="form-input" placeholder="e.g. LandCruiser">
+                  </div>
+                  <div class="form-group">
+                    <div class="form-label">Vehicle Series (Comma Separated)</div>
+                    <input type="text" id="edit-meta-series" class="form-input" placeholder="e.g. 79 Series, 75 Series">
+                  </div>
+                  <div class="form-group">
+                    <div class="form-label">Fitment Position</div>
+                    <input type="text" id="edit-meta-position" class="form-input" placeholder="e.g. Front Left">
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Specs Table Output Preview -->
+              <div class="card" id="specs-preview-card" style="display: none;">
+                <div class="card-title">Technical Specifications Metafields</div>
+                <div class="preview-html" id="specs-list-metafields">
+                  <!-- Displays key value specs list -->
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+        </div>
+        
+        <!-- Editor Footer controls -->
+        <div class="editor-footer">
+          <button class="action-btn btn-secondary" id="btn-discard">Discard</button>
+          <button class="action-btn btn-success" id="btn-publish">🚀 Save & Publish to Shopify</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
