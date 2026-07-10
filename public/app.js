@@ -8,6 +8,9 @@ let searchTimeout = null;
 // Temporary AI payload storage (for specs)
 let lastAiResponse = null;
 
+// SunEditor instance
+let sunEditorInstance = null;
+
 // DOM Elements
 const searchInput = document.getElementById('search-input');
 const filterAll = document.getElementById('filter-all');
@@ -55,6 +58,25 @@ const btnDiscard = document.getElementById('btn-discard');
 
 // Initialize App
 async function init() {
+  // Initialize SunEditor
+  sunEditorInstance = SUNEDITOR.create('edit-description-html', {
+    buttonList: [
+        ['undo', 'redo'],
+        ['font', 'fontSize', 'formatBlock'],
+        ['paragraphStyle', 'blockquote'],
+        ['bold', 'underline', 'italic', 'strike', 'subscript', 'superscript'],
+        ['fontColor', 'hiliteColor', 'textStyle'],
+        ['removeFormat'],
+        ['outdent', 'indent'],
+        ['align', 'horizontalRule', 'list', 'lineHeight'],
+        ['table', 'link', 'image', 'video'],
+        ['fullScreen', 'showBlocks', 'codeView']
+    ],
+    width: '100%',
+    height: '400px',
+    resizingBar: false
+  });
+  
   await fetchStatusTracker();
   await fetchProducts();
   setupEventListeners();
@@ -170,7 +192,7 @@ async function selectProduct(shopifyId) {
     originalSeoDesc.textContent = selectedProduct.seo.description || 'Using default product meta description';
     
     // Clear Right column inputs (Editor fields)
-    editDescriptionHtml.innerHTML = '';
+    sunEditorInstance.setContents('');
     editSeoTitle.value = '';
     editSeoDesc.value = '';
     editProductType.value = selectedProduct.productType || '';
@@ -239,7 +261,7 @@ function populateAiData(data) {
     lastAiResponse = data;
     
     // Populate form fields
-    editDescriptionHtml.innerHTML = data.compiledDescriptionHtml;
+    sunEditorInstance.setContents(data.compiledDescriptionHtml);
     editSeoTitle.value = data.seoTitle;
     editSeoDesc.value = data.seoMetaDescription;
     
@@ -281,7 +303,7 @@ async function publishToShopify() {
   if (!selectedProduct) return;
   const id = selectedProduct.id.replace('gid://shopify/Product/', '');
   
-  const descriptionHtml = editDescriptionHtml.innerHTML.trim();
+  const descriptionHtml = sunEditorInstance.getContents().trim();
   const seoTitle = editSeoTitle.value.trim();
   const seoMetaDescription = editSeoDesc.value.trim();
   const productType = editProductType.value.trim();
