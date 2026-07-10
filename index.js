@@ -24,7 +24,82 @@ const { OpenAI } = require('openai');
 const crypto = require('crypto');
 const path = require('path');
 const fs = require('fs');
+const mysql = require('mysql2/promise');
 require('@shopify/shopify-api/adapters/node');
+
+// Database setup and helpers
+let useMysql = false;
+let dbPool = null;
+
+async function initDb() {
+  if (process.env.DB_HOST) {
+    try {
+      console.log('🔌 Connecting to MySQL database...');
+      dbPool = mysql.createPool({
+        host: process.env.DB_HOST,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASS,
+        database: process.env.DB_NAME,
+        port: parseInt(process.env.DB_PORT) || 3306,
+        waitForConnections: true,
+        connectionLimit: 10,
+        queueLimit: 0
+      });
+      
+      // Test connection and create table
+      await dbPool.query(`
+        CREATE TABLE IF NOT EXISTS reviewed_products (
+          product_id VARCHAR(255) PRIMARY KEY,
+          status VARCHAR(50) DEFAULT 'Reviewed',
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )
+      `);
+      useMysql = true;
+      console.log('✅ MySQL Database initialized successfully.');
+    } catch (e) {
+      console.error('❌ Failed to connect to MySQL database:', e.message);
+      console.log('⚠️ Falling back to local JSON status_tracker.json');
+    }
+  } else {
+    console.log('ℹ️ No DB_HOST found. Using local JSON status_tracker.json');
+  }
+}
+
+async function getReviewedProductIds() {
+  if (useMysql && dbPool) {
+    try {
+      const [rows] = await dbPool.query('SELECT product_id FROM reviewed_products');
+      return rows.map(r => r.product_id);
+    } catch (err) {
+      console.error('Error fetching reviewed products from MySQL:', err.message);
+      return [];
+    }
+  } else {
+    const statusTracker = readStatusTracker();
+    return Object.keys(statusTracker).filter(key => statusTracker[key].status === 'Reviewed');
+  }
+}
+
+async function markProductAsReviewed(productId) {
+  if (useMysql && dbPool) {
+    try {
+      await dbPool.query(
+        'INSERT INTO reviewed_products (product_id, status) VALUES (?, ?) ON DUPLICATE KEY UPDATE status = ?',
+        [productId, 'Reviewed', 'Reviewed']
+      );
+      console.log(`💾 Product ${productId} status saved to MySQL.`);
+    } catch (err) {
+      console.error('Error saving reviewed product to MySQL:', err.message);
+    }
+  } else {
+    const statusTracker = readStatusTracker();
+    statusTracker[productId] = {
+      status: 'Reviewed',
+      timestamp: new Date().toISOString()
+    };
+    writeStatusTracker(statusTracker);
+  }
+}
 
 const { 
   enrichProduct, 
@@ -130,9 +205,6 @@ const LIST_PRODUCTS_QUERY = `
           featuredImage {
             url
           }
-          aiReviewed: metafield(namespace: "custom", key: "ai_reviewed") {
-            value
-          }
         }
       }
     }
@@ -209,19 +281,18 @@ app.get('/api/products', async (req, res) => {
     const response = await requestWithRetry(client, LIST_PRODUCTS_QUERY, { first, after, query });
     const productsData = response.data.products;
     
-    const statusTracker = readStatusTracker();
+    const reviewedIds = await getReviewedProductIds();
 
     // Format response payload
     const productsList = productsData.edges.map(edge => {
       const id = edge.node.id;
-      const statusData = statusTracker[id];
-      const isReviewed = (statusData && statusData.status === 'Reviewed') || (edge.node.aiReviewed && edge.node.aiReviewed.value === 'true');
+      const isReviewed = reviewedIds.includes(id);
       return {
         id,
         title: edge.node.title,
         status: edge.node.status,
         imageUrl: edge.node.featuredImage ? edge.node.featuredImage.url : null,
-        isReviewed: !!isReviewed
+        isReviewed: isReviewed
       };
     });
 
@@ -326,15 +397,7 @@ app.post('/api/products/:id/publish', async (req, res) => {
     
     // 2. Set Metafields
     if (coreMetafields && specifications) {
-      const metafieldsPayload = [
-        {
-          ownerId: productId,
-          namespace: 'custom',
-          key: 'ai_reviewed',
-          value: 'true',
-          type: 'single_line_text_field'
-        }
-      ];
+      const metafieldsPayload = [];
       
       const coreMetafieldsPayload = {
         vehicle_make: coreMetafields.vehicle_make,
@@ -378,13 +441,8 @@ app.post('/api/products/:id/publish', async (req, res) => {
       }
     }
     
-    // 3. Mark status locally as Reviewed
-    const statusTracker = readStatusTracker();
-    statusTracker[productId] = {
-      status: 'Reviewed',
-      timestamp: new Date().toISOString()
-    };
-    writeStatusTracker(statusTracker);
+    // 3. Mark status as Reviewed
+    await markProductAsReviewed(productId);
     
     res.json({ success: true });
   } catch (error) {
@@ -465,7 +523,8 @@ app.get('/auth/callback', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+  await initDb();
   console.log(`Server is running on port ${PORT}`);
   console.log(`Webhook endpoint: http://localhost:${PORT}/webhooks/products-create`);
   console.log(`To install the app, navigate to: http://localhost:${PORT}/auth?shop=${process.env.SHOP_URL}`);
