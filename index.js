@@ -111,6 +111,9 @@ const LIST_PRODUCTS_QUERY = `
           featuredImage {
             url
           }
+          vehicleMake: metafield(namespace: "custom", key: "vehicle_make") {
+            value
+          }
         }
       }
     }
@@ -187,13 +190,21 @@ app.get('/api/products', async (req, res) => {
     const response = await requestWithRetry(client, LIST_PRODUCTS_QUERY, { first, after, query });
     const productsData = response.data.products;
     
+    const statusTracker = readStatusTracker();
+
     // Format response payload
-    const productsList = productsData.edges.map(edge => ({
-      id: edge.node.id,
-      title: edge.node.title,
-      status: edge.node.status,
-      imageUrl: edge.node.featuredImage ? edge.node.featuredImage.url : null
-    }));
+    const productsList = productsData.edges.map(edge => {
+      const id = edge.node.id;
+      const statusData = statusTracker[id];
+      const isReviewed = (statusData && statusData.status === 'Reviewed') || (edge.node.vehicleMake && edge.node.vehicleMake.value);
+      return {
+        id,
+        title: edge.node.title,
+        status: edge.node.status,
+        imageUrl: edge.node.featuredImage ? edge.node.featuredImage.url : null,
+        isReviewed: !!isReviewed
+      };
+    });
 
     res.json({
       products: productsList,

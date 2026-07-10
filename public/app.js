@@ -88,8 +88,7 @@ function renderProductList() {
   productListContainer.innerHTML = '';
   
   const filtered = products.filter(p => {
-    const statusData = statuses[p.id];
-    const isReviewed = statusData && statusData.status === 'Reviewed';
+    const isReviewed = p.isReviewed || (statuses[p.id] && statuses[p.id].status === 'Reviewed');
     
     if (currentFilter === 'pending') return !isReviewed;
     if (currentFilter === 'reviewed') return isReviewed;
@@ -102,8 +101,7 @@ function renderProductList() {
   }
 
   filtered.forEach(p => {
-    const statusData = statuses[p.id];
-    const isReviewed = statusData && statusData.status === 'Reviewed';
+    const isReviewed = p.isReviewed || (statuses[p.id] && statuses[p.id].status === 'Reviewed');
     const badgeText = isReviewed ? 'Reviewed' : 'Pending';
     const badgeClass = isReviewed ? 'badge-reviewed' : 'badge-pending';
     
