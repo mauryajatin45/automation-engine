@@ -9,9 +9,6 @@ let hasNextPage = false;
 // Temporary AI payload storage (for specs)
 let lastAiResponse = null;
 
-// SunEditor instance
-let sunEditorInstance = null;
-
 // DOM Elements
 const searchInput = document.getElementById('search-input');
 const filterAll = document.getElementById('filter-all');
@@ -60,23 +57,14 @@ const btnDiscard = document.getElementById('btn-discard');
 
 // Initialize App
 async function init() {
-  // Initialize SunEditor
-  sunEditorInstance = SUNEDITOR.create(document.getElementById('edit-description-html'), {
-    buttonList: [
-        ['undo', 'redo'],
-        ['font', 'fontSize', 'formatBlock'],
-        ['paragraphStyle', 'blockquote'],
-        ['bold', 'underline', 'italic', 'strike', 'subscript', 'superscript'],
-        ['fontColor', 'hiliteColor', 'textStyle'],
-        ['removeFormat'],
-        ['outdent', 'indent'],
-        ['align', 'horizontalRule', 'list', 'lineHeight'],
-        ['table', 'link', 'image', 'video'],
-        ['fullScreen', 'showBlocks', 'codeView']
-    ],
-    width: '100%',
-    height: '400px',
-    resizingBar: false
+  // Initialize TinyMCE
+  tinymce.init({
+    selector: '#edit-description-html',
+    plugins: 'lists link table code help wordcount',
+    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline | alignleft aligncenter alignright | bullist numlist outdent indent | table link | code',
+    height: 400,
+    menubar: false,
+    promotion: false
   });
   
   await fetchStatusTracker();
@@ -203,7 +191,9 @@ async function selectProduct(shopifyId) {
     originalSeoDesc.textContent = selectedProduct.seo.description || 'Using default product meta description';
     
     // Clear Right column inputs (Editor fields)
-    sunEditorInstance.setContents('');
+    if (tinymce.get('edit-description-html')) {
+      tinymce.get('edit-description-html').setContent('');
+    }
     editSeoTitle.value = '';
     editSeoDesc.value = '';
     editProductType.value = selectedProduct.productType || '';
@@ -272,7 +262,9 @@ function populateAiData(data) {
     lastAiResponse = data;
     
     // Populate form fields
-    sunEditorInstance.setContents(data.compiledDescriptionHtml);
+    if (tinymce.get('edit-description-html')) {
+      tinymce.get('edit-description-html').setContent(data.compiledDescriptionHtml);
+    }
     editSeoTitle.value = data.seoTitle;
     editSeoDesc.value = data.seoMetaDescription;
     
@@ -314,7 +306,7 @@ async function publishToShopify() {
   if (!selectedProduct) return;
   const id = selectedProduct.id.replace('gid://shopify/Product/', '');
   
-  const descriptionHtml = sunEditorInstance.getContents().trim();
+  const descriptionHtml = tinymce.get('edit-description-html') ? tinymce.get('edit-description-html').getContent().trim() : '';
   const seoTitle = editSeoTitle.value.trim();
   const seoMetaDescription = editSeoDesc.value.trim();
   const productType = editProductType.value.trim();
