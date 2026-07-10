@@ -130,7 +130,7 @@ const LIST_PRODUCTS_QUERY = `
           featuredImage {
             url
           }
-          vehicleMake: metafield(namespace: "custom", key: "vehicle_make") {
+          aiReviewed: metafield(namespace: "custom", key: "ai_reviewed") {
             value
           }
         }
@@ -215,7 +215,7 @@ app.get('/api/products', async (req, res) => {
     const productsList = productsData.edges.map(edge => {
       const id = edge.node.id;
       const statusData = statusTracker[id];
-      const isReviewed = (statusData && statusData.status === 'Reviewed') || (edge.node.vehicleMake && edge.node.vehicleMake.value);
+      const isReviewed = (statusData && statusData.status === 'Reviewed') || (edge.node.aiReviewed && edge.node.aiReviewed.value === 'true');
       return {
         id,
         title: edge.node.title,
@@ -326,7 +326,15 @@ app.post('/api/products/:id/publish', async (req, res) => {
     
     // 2. Set Metafields
     if (coreMetafields && specifications) {
-      const metafieldsPayload = [];
+      const metafieldsPayload = [
+        {
+          ownerId: productId,
+          namespace: 'custom',
+          key: 'ai_reviewed',
+          value: 'true',
+          type: 'single_line_text_field'
+        }
+      ];
       
       const coreMetafieldsPayload = {
         vehicle_make: coreMetafields.vehicle_make,
