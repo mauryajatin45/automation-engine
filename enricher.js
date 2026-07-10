@@ -229,8 +229,8 @@ function compileDescriptionHtml(aiData, specsTableHtml, originalDescriptionHtml)
   }
   
   // 5. Important Fitment Notes
-  if (aiData.description_sections.installation_notes) {
-    html += `<h3>Important Fitment Notes</h3>\n<p>${aiData.description_sections.installation_notes}</p>\n\n`;
+  if (aiData.description_sections.installation_notes && aiData.description_sections.installation_notes.trim() !== '') {
+    html += `<h3>Important Fitment Notes</h3>\n<p>${aiData.description_sections.installation_notes.trim()}</p>\n\n`;
   }
   
   // 6. Product Specific FAQs (Accordion-ready semantic HTML)
@@ -304,7 +304,7 @@ CRITICAL - NO HALLUCINATIONS:
    - "short_intro": A direct, descriptive paragraph explaining the part's build quality, material, surface finish, and primary function. Avoid marketing clichés (e.g. "Upgrade your ride", "seeking enhanced durability"). Write in the voice of an experienced Australian 4WD parts specialist.
    - "key_features": Array of 3 to 6 technical highlights (e.g., pre-tapped captured nuts, snorkel cutout details, EDP rust protection).
    - "compatibility": Clearly explain vehicle fitment, including year ranges, body types (Troopy, Ute, FRP Top, Wagon), chassis codes, and engine variants if applicable.
-   - "installation_notes": Explicitly detail what components are NOT included and must be transferred from the original part (e.g., glass, window seals, regulator assembly, lock cylinders, wiper motor), and recommend professional prep and painting.
+   - "installation_notes": Explicitly detail what components are NOT included and must be transferred from the original part (e.g., glass, window seals, regulator assembly, lock cylinders, wiper motor), and recommend professional prep and painting. CRITICAL: If the product is a universal or simple accessory (e.g. tow balls, tow ball mounts, tyre deflators, winch accessories, recovery gear, UHF radios/antennas, portable fridges/freezers, folding chairs, generators, floor mats), you MUST set "installation_notes" to an empty string (""). Do not invent fitment instructions or paint recommendations for these items.
 
 8. "seo_title": Generate a high-performance SEO Page Title. It must be strictly 70 characters or less (preferably between 50 and 65 characters) and contain the product name, key vehicle compatibilities, and brand 'Track Auto'. DO NOT exceed 70 characters.
 

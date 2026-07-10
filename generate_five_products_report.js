@@ -77,33 +77,30 @@ async function main() {
     
     // Find the target product: "TAG Chrome Tow Ball EFS - 50mm, 3.5 tonne"
     // We will do a fuzzy match (case-insensitive) on "TAG Chrome Tow Ball"
-    const targetProduct = allProducts.find(p => {
-      const titleLower = p.title.toLowerCase();
-      return titleLower.includes('tag chrome tow ball') || titleLower.includes('tag chrome');
+    const titlesToFind = [
+      "TAG Chrome Tow Ball EFS - 50mm, 3.5 tonne",
+      "Aftermarket Side Step Bracket Suitable for 40 Series Landcruiser",
+      "Aftermarket Sandy Taupe Colour Coded Grille Suitable for Landcruiser 79 Series",
+      "Oricom 2-in-1 All-Terrain UHF CB Antenna for low/high gain (3dbi/6.5dbi) ANU806AT",
+      "ABS Floor Mats for Toyota LandCruiser 79 Series Single Cab"
+    ];
+    
+    const selected = [];
+    titlesToFind.forEach(title => {
+      const prod = allProducts.find(p => p.title.toLowerCase().includes(title.toLowerCase().split(' - ')[0].trim().substring(0, 30)));
+      if (prod) {
+        selected.push(prod);
+      }
     });
     
-    if (!targetProduct) {
-      console.warn('⚠️ Warning: Target product containing "TAG Chrome Tow Ball" not found in store.');
-    } else {
-      console.log(`🎯 Found Target Product: "${targetProduct.title}" (ID: ${targetProduct.id})`);
-    }
-    
-    // Select 4 other products randomly (excluding the target product if found)
-    const candidates = targetProduct 
-      ? allProducts.filter(p => p.id !== targetProduct.id)
-      : allProducts;
-      
-    const selected = [];
-    if (targetProduct) {
-      selected.push(targetProduct);
-    }
-    
-    // Shuffle candidates to pick 4 random products
-    const shuffled = candidates.sort(() => 0.5 - Math.random());
-    const countNeeded = targetProduct ? 4 : 5;
-    
-    for (let i = 0; i < Math.min(shuffled.length, countNeeded); i++) {
-      selected.push(shuffled[i]);
+    // Fallback if some aren't matched
+    if (selected.length < 5) {
+      const missingCount = 5 - selected.length;
+      const candidates = allProducts.filter(p => !selected.map(s => s.id).includes(p.id));
+      const shuffled = candidates.sort(() => 0.5 - Math.random());
+      for (let i = 0; i < Math.min(shuffled.length, missingCount); i++) {
+        selected.push(shuffled[i]);
+      }
     }
     
     console.log(`🔄 Selected ${selected.length} products to process:`);

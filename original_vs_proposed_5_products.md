@@ -14,8 +14,8 @@ This report lists the original descriptions side-by-side with the newly generate
 
 ### Search Engine Listing (SEO)
 
-*   **Proposed SEO Title (Max 70 chars)**: `Chrome Tow Ball 50mm 3.5 Tonne - Track Auto` (Length: 43 characters)
-*   **Proposed Meta Description (Max 160 chars)**: `Shop the 50mm Chrome Tow Ball, 3.5 Tonne from Track Auto. Universal fit, meets AS4177.2-2004 standards. Perfect for heavy-duty towing.` (Length: 134 characters)
+*   **Proposed SEO Title (Max 70 chars)**: `Chrome Tow Ball 50mm 3.5 Tonne | Track Auto` (Length: 43 characters)
+*   **Proposed Meta Description (Max 160 chars)**: `Universal chrome tow ball with 50mm thread and 3.5 tonne capacity. Complies with AS4177.2-2004. Available at Track Auto.` (Length: 120 characters)
 
 ### Description Comparison
 
@@ -35,7 +35,7 @@ This report lists the original descriptions side-by-side with the newly generate
 #### Proposed Description (AI Output)
 
 <h3>Short Intro</h3>
-<p>This aftermarket chrome tow ball is designed for robust towing applications, featuring a 50mm thread and a 3.5-tonne load rating. It meets Australian safety standards.</p>
+<p>This aftermarket chrome tow ball features a 50mm thread and a robust 3.5 tonne load rating, ensuring reliable towing performance.</p>
 
 <h3>Specifications</h3>
 <table style="width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 20px; font-size: 14px; text-align: left; font-family: sans-serif;">
@@ -59,14 +59,14 @@ This report lists the original descriptions side-by-side with the newly generate
       <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Thread Diameter</td>
       <td style="padding: 10px; border: 1px solid #ddd;">50mm</td>
     <tr style="background-color: #ffffff; border-bottom: 1px solid #ddd;">
-      <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Finish</td>
-      <td style="padding: 10px; border: 1px solid #ddd;">Chrome</td>
-    <tr style="background-color: #f9f9f9; border-bottom: 1px solid #ddd;">
       <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Load Rating</td>
       <td style="padding: 10px; border: 1px solid #ddd;">3500kg</td>
-    <tr style="background-color: #ffffff; border-bottom: 1px solid #ddd;">
+    <tr style="background-color: #f9f9f9; border-bottom: 1px solid #ddd;">
       <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Shank Length</td>
       <td style="padding: 10px; border: 1px solid #ddd;">62mm</td>
+    <tr style="background-color: #ffffff; border-bottom: 1px solid #ddd;">
+      <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Finish</td>
+      <td style="padding: 10px; border: 1px solid #ddd;">Chrome</td>
     <tr style="background-color: #f9f9f9; border-bottom: 1px solid #ddd;">
       <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Compliance</td>
       <td style="padding: 10px; border: 1px solid #ddd;">AS4177.2-2004 Appendix A Static Test</td>
@@ -83,16 +83,13 @@ This report lists the original descriptions side-by-side with the newly generate
 </ul>
 
 <h3>Compatibility</h3>
-<p>This tow ball is universal and can be used with various towing setups that require a 50mm tow ball.</p>
-
-<h3>Important Fitment Notes</h3>
-<p>Ensure the tow ball is securely fastened and check compatibility with your towing setup. Professional installation is recommended for optimal safety.</p>
+<p>This tow ball is universal and can be used with a variety of towing setups.</p>
 
 <h3>Product FAQs</h3>
 <div class="faq-section" style="margin-top: 15px; margin-bottom: 20px; font-family: sans-serif;">
   <div class="faq-item" style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-    <p style="font-weight: bold; margin: 0 0 5px 0; color: #333;">Q: What is the load rating of this tow ball?</p>
-    <p style="margin: 0; color: #666;">A: The tow ball has a load rating of 3500kg, making it suitable for heavy-duty towing applications.</p>
+    <p style="font-weight: bold; margin: 0 0 5px 0; color: #333;">Q: What is the load capacity of this tow ball?</p>
+    <p style="margin: 0; color: #666;">A: The tow ball has a load capacity of 3500kg, making it suitable for heavy-duty towing.</p>
   </div>
   <div class="faq-item" style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
     <p style="font-weight: bold; margin: 0 0 5px 0; color: #333;">Q: Does this tow ball comply with safety standards?</p>
@@ -100,7 +97,7 @@ This report lists the original descriptions side-by-side with the newly generate
   </div>
   <div class="faq-item" style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
     <p style="font-weight: bold; margin: 0 0 5px 0; color: #333;">Q: What is the shank length of this tow ball?</p>
-    <p style="margin: 0; color: #666;">A: The shank length of this tow ball is 62mm, ensuring a secure fit.</p>
+    <p style="margin: 0; color: #666;">A: The shank length of this tow ball is 62mm.</p>
   </div>
 </div>
 
@@ -116,8 +113,8 @@ This report lists the original descriptions side-by-side with the newly generate
 
 ### Search Engine Listing (SEO)
 
-*   **Proposed SEO Title (Max 70 chars)**: `Aftermarket Side Step Bracket for 40 Series - Track Auto` (Length: 56 characters)
-*   **Proposed Meta Description (Max 160 chars)**: `Replace rusty side step brackets on your 40 Series with our aftermarket solution. Fits 1979-1984 models. Order now from Track Auto!` (Length: 131 characters)
+*   **Proposed SEO Title (Max 70 chars)**: `Aftermarket Side Step Bracket for 40 Series | Track Auto` (Length: 56 characters)
+*   **Proposed Meta Description (Max 160 chars)**: `Replace rusty brackets with our aftermarket side step bracket for 40 Series LandCruiser. Fits 1979-1984 models. Order now from Track Auto!` (Length: 138 characters)
 
 ### Description Comparison
 
@@ -136,7 +133,7 @@ This report lists the original descriptions side-by-side with the newly generate
 #### Proposed Description (AI Output)
 
 <h3>Short Intro</h3>
-<p>These aftermarket side step brackets are crafted from pressed steel and EDP coated for rust protection, providing a reliable replacement for your 40 Series.</p>
+<p>This aftermarket side step bracket is crafted from pressed steel and EDP coated for rust protection, serving as a reliable replacement for 40 Series restorers.</p>
 
 <h3>Specifications</h3>
 <table style="width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 20px; font-size: 14px; text-align: left; font-family: sans-serif;">
@@ -162,6 +159,9 @@ This report lists the original descriptions side-by-side with the newly generate
     <tr style="background-color: #ffffff; border-bottom: 1px solid #ddd;">
       <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Finish</td>
       <td style="padding: 10px; border: 1px solid #ddd;">EDP Coated Steel</td>
+    <tr style="background-color: #f9f9f9; border-bottom: 1px solid #ddd;">
+      <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Fitment</td>
+      <td style="padding: 10px; border: 1px solid #ddd;">1979 to 1984 Landcruiser 40 Series</td>
   </tbody>
 </table>
 
@@ -169,30 +169,30 @@ This report lists the original descriptions side-by-side with the newly generate
 <ul>
   <li>Pressed steel construction</li>
   <li>EDP coated for rust protection</li>
-  <li>Factory replacement for genuine parts</li>
-  <li>Suitable for 40 Series LandCruiser</li>
-  <li>Reliable aftermarket option</li>
+  <li>Direct factory replacement</li>
+  <li>Suitable for 1979-1984 models</li>
+  <li>Trusted aftermarket option</li>
 </ul>
 
 <h3>Compatibility</h3>
-<p>Fits Toyota LandCruiser 40 Series models from 1979 to 1984. For early models, verify fitment with additional measurements.</p>
+<p>Fits Toyota LandCruiser 40 Series from 1979 to 1984. Ideal for restorers needing a reliable replacement for rusty brackets.</p>
 
 <h3>Important Fitment Notes</h3>
-<p>No additional components are included. Ensure compatibility with existing side steps. Professional installation recommended for optimal fit.</p>
+<p>Ensure to transfer any necessary components from the original part. Professional installation is recommended for optimal results.</p>
 
 <h3>Product FAQs</h3>
 <div class="faq-section" style="margin-top: 15px; margin-bottom: 20px; font-family: sans-serif;">
   <div class="faq-item" style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-    <p style="font-weight: bold; margin: 0 0 5px 0; color: #333;">Q: Will these brackets fit my early model 40 Series?</p>
-    <p style="margin: 0; color: #666;">A: These brackets fit most 40 Series from 1979 to 1984. For early models, contact us for additional measurements.</p>
+    <p style="font-weight: bold; margin: 0 0 5px 0; color: #333;">Q: Will this bracket fit my early model 40 Series?</p>
+    <p style="margin: 0; color: #666;">A: It fits most 1979-1984 models. For early models, contact us for more pics and measurements.</p>
   </div>
   <div class="faq-item" style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-    <p style="font-weight: bold; margin: 0 0 5px 0; color: #333;">Q: Do the brackets come with rust protection?</p>
-    <p style="margin: 0; color: #666;">A: Yes, the brackets are made from pressed steel and are EDP coated for rust protection.</p>
+    <p style="font-weight: bold; margin: 0 0 5px 0; color: #333;">Q: Is any additional rust protection needed?</p>
+    <p style="margin: 0; color: #666;">A: The bracket is EDP coated for rust protection. Additional overcoating is recommended for enhanced durability.</p>
   </div>
   <div class="faq-item" style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-    <p style="font-weight: bold; margin: 0 0 5px 0; color: #333;">Q: Are there any additional parts needed for installation?</p>
-    <p style="margin: 0; color: #666;">A: No additional parts are needed, but ensure your existing side steps are compatible with these brackets.</p>
+    <p style="font-weight: bold; margin: 0 0 5px 0; color: #333;">Q: Do I need to modify my vehicle for installation?</p>
+    <p style="margin: 0; color: #666;">A: No modifications are needed. This bracket is a direct factory replacement for the genuine part.</p>
   </div>
 </div>
 
@@ -208,8 +208,8 @@ This report lists the original descriptions side-by-side with the newly generate
 
 ### Search Engine Listing (SEO)
 
-*   **Proposed SEO Title (Max 70 chars)**: `Aftermarket Grille for 79 Series - Track Auto` (Length: 45 characters)
-*   **Proposed Meta Description (Max 160 chars)**: `Enhance your 79 Series with this aftermarket grille. Perfect fit for pre-facelift models. Order now from Track Auto for a stylish upgrade.` (Length: 138 characters)
+*   **Proposed SEO Title (Max 70 chars)**: `Aftermarket Grille for 79 Series | Track Auto` (Length: 45 characters)
+*   **Proposed Meta Description (Max 160 chars)**: `Upgrade your 79 Series with our aftermarket grille. Perfect fit, durable, and stylish. Order now from Track Auto for a quick front-end refresh.` (Length: 143 characters)
 
 ### Description Comparison
 
@@ -246,7 +246,7 @@ This report lists the original descriptions side-by-side with the newly generate
 #### Proposed Description (AI Output)
 
 <h3>Short Intro</h3>
-<p>This aftermarket grille is crafted with a robust build and a factory Sandy Taupe finish, designed to enhance the appearance and durability of your 79 Series.</p>
+<p>This aftermarket grille for the 79 Series features a durable build with a factory Sandy Taupe finish and gloss black accents, designed for a direct fit.</p>
 
 <h3>Specifications</h3>
 <table style="width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 20px; font-size: 14px; text-align: left; font-family: sans-serif;">
@@ -272,37 +272,37 @@ This report lists the original descriptions side-by-side with the newly generate
     <tr style="background-color: #ffffff; border-bottom: 1px solid #ddd;">
       <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Fitment</td>
       <td style="padding: 10px; border: 1px solid #ddd;">Pre-facelift 79 Series</td>
+    <tr style="background-color: #f9f9f9; border-bottom: 1px solid #ddd;">
+      <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Installation</td>
+      <td style="padding: 10px; border: 1px solid #ddd;">Direct fit with all parts included</td>
   </tbody>
 </table>
 
 <h3>Key Features</h3>
 <ul>
-  <li>Exact match to Toyota’s 4E9 paint code</li>
+  <li>Factory Sandy Taupe finish with 4E9 paint code</li>
   <li>Gloss black accents for modern style</li>
   <li>Direct fit with all parts included</li>
-  <li>Durable construction for off-road use</li>
-  <li>Designed for pre-facelift 79 Series</li>
+  <li>Strong build for off-road durability</li>
+  <li>Perfect fit for pre-facelift 79 Series</li>
 </ul>
 
 <h3>Compatibility</h3>
-<p>Fits Toyota LandCruiser 79 Series pre-facelift models, including single cab and dual cab variants.</p>
-
-<h3>Important Fitment Notes</h3>
-<p>No additional components are required for installation. All necessary fittings are included. Professional installation is recommended for optimal results.</p>
+<p>Designed for pre-facelift Toyota LandCruiser 79 Series, suitable for single cab, dual cab, and more.</p>
 
 <h3>Product FAQs</h3>
 <div class="faq-section" style="margin-top: 15px; margin-bottom: 20px; font-family: sans-serif;">
   <div class="faq-item" style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
     <p style="font-weight: bold; margin: 0 0 5px 0; color: #333;">Q: Does this grille require any modifications for installation?</p>
-    <p style="margin: 0; color: #666;">A: No, it is a direct fit for pre-facelift 79 Series models and requires only basic tools.</p>
-  </div>
-  <div class="faq-item" style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-    <p style="font-weight: bold; margin: 0 0 5px 0; color: #333;">Q: Can I install this grille on a facelift model?</p>
-    <p style="margin: 0; color: #666;">A: No, this grille is specifically designed for pre-facelift 79 Series models only.</p>
+    <p style="margin: 0; color: #666;">A: No, it is a direct fit for pre-facelift 79 Series models and requires no modifications.</p>
   </div>
   <div class="faq-item" style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
     <p style="font-weight: bold; margin: 0 0 5px 0; color: #333;">Q: Are all necessary fittings included with the grille?</p>
     <p style="margin: 0; color: #666;">A: Yes, all necessary fittings for installation are included with the grille.</p>
+  </div>
+  <div class="faq-item" style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+    <p style="font-weight: bold; margin: 0 0 5px 0; color: #333;">Q: Can this grille withstand off-road conditions?</p>
+    <p style="margin: 0; color: #666;">A: Yes, it is built with strong materials to handle off-road hits and weather changes.</p>
   </div>
 </div>
 
@@ -318,8 +318,8 @@ This report lists the original descriptions side-by-side with the newly generate
 
 ### Search Engine Listing (SEO)
 
-*   **Proposed SEO Title (Max 70 chars)**: `Track Auto 2-in-1 UHF CB Antenna for All Terrains` (Length: 49 characters)
-*   **Proposed Meta Description (Max 160 chars)**: `Discover the versatile Oricom 2-in-1 UHF CB Antenna for all terrains. Universal fit, easy installation. Available now at Track Auto.` (Length: 132 characters)
+*   **Proposed SEO Title (Max 70 chars)**: `2-in-1 UHF CB Antenna | Track Auto` (Length: 34 characters)
+*   **Proposed Meta Description (Max 160 chars)**: `Versatile 2-in-1 UHF CB Antenna for all terrains. Universal fit, easy install. Available at Track Auto.` (Length: 103 characters)
 
 ### Description Comparison
 
@@ -346,7 +346,7 @@ This report lists the original descriptions side-by-side with the newly generate
 <p><iframe width="560" height="315" src="https://www.youtube.com/embed/ZSppZto5PFc?si=gvGZ67x2HZ4ocf0W" title="YouTube video player"></iframe></p>
 
 <h3>Short Intro</h3>
-<p>The Oricom 2-in-1 All-Terrain UHF CB Antenna offers versatile communication with both low and high gain options, ideal for varied landscapes.</p>
+<p>The Oricom 2-in-1 All-Terrain UHF CB Antenna offers versatile communication with interchangeable gain options, ideal for varied landscapes.</p>
 
 <h3>Specifications</h3>
 <table style="width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 20px; font-size: 14px; text-align: left; font-family: sans-serif;">
@@ -368,7 +368,7 @@ This report lists the original descriptions side-by-side with the newly generate
       <td style="padding: 10px; border: 1px solid #ddd;">ANU806AT</td>
     <tr style="background-color: #f9f9f9; border-bottom: 1px solid #ddd;">
       <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Gain Options</td>
-      <td style="padding: 10px; border: 1px solid #ddd;">3dBi and 6.5dBi</td>
+      <td style="padding: 10px; border: 1px solid #ddd;">3dBi/6.5dBi</td>
     <tr style="background-color: #ffffff; border-bottom: 1px solid #ddd;">
       <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Cable Length</td>
       <td style="padding: 10px; border: 1px solid #ddd;">4.5m</td>
@@ -384,31 +384,28 @@ This report lists the original descriptions side-by-side with the newly generate
 <h3>Key Features</h3>
 <ul>
   <li>3dBi antenna with spring base</li>
-  <li>6.5dBi antenna with 600mm fiberglass pole</li>
-  <li>Low-loss coaxial cable (4.5m)</li>
-  <li>Pre-terminated FME connector and PL259 adaptor</li>
+  <li>6.5dBi gain with fiberglass pole</li>
+  <li>Low-loss 4.5m coaxial cable</li>
+  <li>Pre-terminated FME connector</li>
   <li>3 Year warranty</li>
 </ul>
 
 <h3>Compatibility</h3>
-<p>This antenna is universally compatible with all UHF CB radios, making it suitable for any vehicle setup.</p>
-
-<h3>Important Fitment Notes</h3>
-<p>Ensure proper installation by following the included instructions. Professional installation is recommended for optimal performance.</p>
+<p>Universal fitment for all vehicle types, suitable for both built-up and flat terrains.</p>
 
 <h3>Product FAQs</h3>
 <div class="faq-section" style="margin-top: 15px; margin-bottom: 20px; font-family: sans-serif;">
   <div class="faq-item" style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-    <p style="font-weight: bold; margin: 0 0 5px 0; color: #333;">Q: How do I switch between the 3dBi and 6.5dBi antennas?</p>
-    <p style="margin: 0; color: #666;">A: The antenna pack includes a spring base for the 3dBi antenna and a 600mm fiberglass pole for the 6.5dBi antenna, allowing easy swapping.</p>
+    <p style="font-weight: bold; margin: 0 0 5px 0; color: #333;">Q: Can the antenna be used in both mountainous and flat terrains?</p>
+    <p style="margin: 0; color: #666;">A: Yes, the antenna includes a 3dBi gain for mountainous areas and a 6.5dBi gain for flat terrains.</p>
   </div>
   <div class="faq-item" style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-    <p style="font-weight: bold; margin: 0 0 5px 0; color: #333;">Q: Is the antenna compatible with all UHF CB radios?</p>
-    <p style="margin: 0; color: #666;">A: Yes, the antenna is universal and compatible with all UHF CB radios using the included FME connector and PL259 adaptor.</p>
+    <p style="font-weight: bold; margin: 0 0 5px 0; color: #333;">Q: What is the length of the coaxial cable provided?</p>
+    <p style="margin: 0; color: #666;">A: The package includes a low-loss coaxial cable that is 4.5 meters long.</p>
   </div>
   <div class="faq-item" style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-    <p style="font-weight: bold; margin: 0 0 5px 0; color: #333;">Q: What is the best terrain for each antenna gain?</p>
-    <p style="margin: 0; color: #666;">A: Use the 3dBi antenna for built-up or mountainous areas and the 6.5dBi antenna for flat terrain to optimize communication.</p>
+    <p style="font-weight: bold; margin: 0 0 5px 0; color: #333;">Q: Is professional installation required for this antenna?</p>
+    <p style="margin: 0; color: #666;">A: No, the antenna is designed for easy installation with pre-terminated connectors.</p>
   </div>
 </div>
 
@@ -424,8 +421,8 @@ This report lists the original descriptions side-by-side with the newly generate
 
 ### Search Engine Listing (SEO)
 
-*   **Proposed SEO Title (Max 70 chars)**: `Aftermarket Floor Mats for 79 Series | Track Auto` (Length: 49 characters)
-*   **Proposed Meta Description (Max 160 chars)**: `Shop aftermarket floor mats for 79 Series LandCruiser. Durable ABS plastic, easy to clean, perfect fit. Order now from Track Auto!` (Length: 130 characters)
+*   **Proposed SEO Title (Max 70 chars)**: `ABS Floor Mats for 79 Series | Track Auto` (Length: 41 characters)
+*   **Proposed Meta Description (Max 160 chars)**: `Durable ABS floor mats for Toyota LandCruiser 79 Series. Perfect fit for single and dual cab. Get yours at Track Auto today!` (Length: 124 characters)
 
 ### Description Comparison
 
@@ -460,7 +457,7 @@ This report lists the original descriptions side-by-side with the newly generate
 #### Proposed Description (AI Output)
 
 <h3>Short Intro</h3>
-<p>These aftermarket floor mats are crafted from durable moulded ABS plastic, providing a factory-like finish and excellent protection for your 79 Series cabin.</p>
+<p>Crafted from durable moulded ABS plastic, these floor mats offer a factory-like finish and excellent protection for your 79 Series cabin.</p>
 
 <h3>Specifications</h3>
 <table style="width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 20px; font-size: 14px; text-align: left; font-family: sans-serif;">
@@ -476,7 +473,7 @@ This report lists the original descriptions side-by-side with the newly generate
       <td style="padding: 10px; border: 1px solid #ddd;">I LOVE LANDCRUISER</td>
     <tr style="background-color: #f9f9f9; border-bottom: 1px solid #ddd;">
       <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Product Name</td>
-      <td style="padding: 10px; border: 1px solid #ddd;">Aftermarket Floor Mats Suitable for 79 Series</td>
+      <td style="padding: 10px; border: 1px solid #ddd;">Aftermarket ABS Floor Mats Suitable for 79 Series</td>
     <tr style="background-color: #ffffff; border-bottom: 1px solid #ddd;">
       <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">SKU</td>
       <td style="padding: 10px; border: 1px solid #ddd;">SKU-050</td>
@@ -488,38 +485,35 @@ This report lists the original descriptions side-by-side with the newly generate
       <td style="padding: 10px; border: 1px solid #ddd;">Single-cab and dual-cab variants</td>
     <tr style="background-color: #f9f9f9; border-bottom: 1px solid #ddd;">
       <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Retention</td>
-      <td style="padding: 10px; border: 1px solid #ddd;">Factory retention points</td>
+      <td style="padding: 10px; border: 1px solid #ddd;">Factory retaining clips</td>
   </tbody>
 </table>
 
 <h3>Key Features</h3>
 <ul>
-  <li>Durable moulded ABS plastic construction</li>
-  <li>Factory-like stylish finish</li>
-  <li>Compatible with single and dual cab variants</li>
-  <li>Easy to clean and maintain</li>
-  <li>Uses factory retention points for secure fitment</li>
+  <li>Durable moulded ABS plastic</li>
+  <li>Factory-like finish</li>
+  <li>Fits single and dual cab variants</li>
+  <li>Uses factory retaining clips</li>
+  <li>Easy to clean</li>
 </ul>
 
 <h3>Compatibility</h3>
-<p>Suitable for Toyota LandCruiser 79 Series, including single-cab and dual-cab variants.</p>
-
-<h3>Important Fitment Notes</h3>
-<p>No additional components are required for installation. Ensure factory retaining clips are available for proper fitment.</p>
+<p>Suitable for Toyota LandCruiser 79 Series single-cab and dual-cab variants.</p>
 
 <h3>Product FAQs</h3>
 <div class="faq-section" style="margin-top: 15px; margin-bottom: 20px; font-family: sans-serif;">
   <div class="faq-item" style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
     <p style="font-weight: bold; margin: 0 0 5px 0; color: #333;">Q: Do these floor mats fit both single and dual cab models?</p>
-    <p style="margin: 0; color: #666;">A: Yes, these floor mats are designed to fit both single-cab and dual-cab variants of the 79 Series.</p>
+    <p style="margin: 0; color: #666;">A: Yes, these ABS floor mats are designed to fit both single-cab and dual-cab variants of the 79 Series.</p>
   </div>
   <div class="faq-item" style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
     <p style="font-weight: bold; margin: 0 0 5px 0; color: #333;">Q: Are factory retaining clips required for installation?</p>
-    <p style="margin: 0; color: #666;">A: Yes, these floor mats use factory retaining clips for a snug and secure fit.</p>
+    <p style="margin: 0; color: #666;">A: Yes, these mats use factory retaining clips for a secure and snug fit.</p>
   </div>
   <div class="faq-item" style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-    <p style="font-weight: bold; margin: 0 0 5px 0; color: #333;">Q: Can these mats be easily cleaned after off-road use?</p>
-    <p style="margin: 0; color: #666;">A: Yes, the ABS plastic material is durable and easy to clean, making it ideal for off-road conditions.</p>
+    <p style="font-weight: bold; margin: 0 0 5px 0; color: #333;">Q: Can these mats be easily cleaned?</p>
+    <p style="margin: 0; color: #666;">A: Yes, the ABS material is easy to clean, making maintenance simple and quick.</p>
   </div>
 </div>
 
