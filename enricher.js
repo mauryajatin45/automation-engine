@@ -274,9 +274,9 @@ CRITICAL - NO HALLUCINATIONS:
    - When rewriting, use short abbreviations like "LH" and "RH" instead of "Left Hand" or "Right Hand".
    - CRITICAL: NEVER use the words "Suitable for". Just use "for" (e.g., "for [Series / Model]").
    - For aftermarket parts, use the structure: "Aftermarket [Part Name] for [Series / Model]".
-   - Omit manufacturer branding (like "Toyota" or "Nissan") from the clean title if it is aftermarket. Use only the model/series name.
-   - Example: Original "Aftermarket Left Hand Rear Door for Toyota LandCruiser 60 Series" -> AI Suggested "Aftermarket LH Rear Door for LandCruiser 60 Series"
-   - Example: Original "Dual Cab Tub Suitable for Landcruiser" -> AI Suggested "Dual Cab Tub for LandCruiser"
+   - ALWAYS keep the manufacturer branding (like "Toyota" and "LandCruiser") in the title if it exists. Do not drop it.
+   - Example: Original "Aftermarket Left Hand Rear Door for Toyota LandCruiser 60 Series" -> AI Suggested "Aftermarket LH Rear Door for Toyota LandCruiser 60 Series"
+   - Example: Original "Dual Cab Tub Suitable for Toyota Landcruiser" -> AI Suggested "Dual Cab Tub for Toyota Landcruiser"
 
 2. "product_type": Categorize the product into a specific standard customer-facing type / category.
    - Use clean, user-friendly, pluralized category names.
