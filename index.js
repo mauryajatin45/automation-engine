@@ -561,6 +561,35 @@ app.post('/api/products/:id/publish', async (req, res) => {
   }
 });
 
+// POST /api/admin/create-smart-collection: Create a smart collection on Shopify
+app.post('/api/admin/create-smart-collection', async (req, res) => {
+  try {
+    const { title, rules, disjunctive } = req.body;
+    
+    if (!title || !rules || !Array.isArray(rules)) {
+      return res.status(400).json({ error: 'title and rules[] are required' });
+    }
+
+    const restClient = new shopify.clients.Rest({ session });
+    const response = await restClient.post({
+      path: 'smart_collections',
+      data: {
+        smart_collection: {
+          title: title,
+          rules: rules,
+          disjunctive: disjunctive || false
+        }
+      }
+    });
+
+    console.log(`✅ Smart Collection created: "${title}"`);
+    res.json({ success: true, collection: response.body.smart_collection });
+  } catch (error) {
+    console.error('Error creating smart collection:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
