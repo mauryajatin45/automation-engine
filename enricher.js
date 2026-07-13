@@ -200,15 +200,17 @@ function extractYoutubeEmbeds(html) {
 function compileDescriptionHtml(aiData, specsTableHtml, originalDescriptionHtml) {
   let html = '';
   
-  // Extract and prepend youtube videos from original description if any exist
+  // Extract youtube videos from original description (to be inserted after intro)
   const youtubeVideos = extractYoutubeEmbeds(originalDescriptionHtml);
-  if (youtubeVideos) {
-    html += youtubeVideos;
+  
+  // 1. Short Intro (no heading, just the paragraph)
+  if (aiData.description_sections.short_intro) {
+    html += `<p>${aiData.description_sections.short_intro}</p>\n\n`;
   }
   
-  // 1. Short Intro
-  if (aiData.description_sections.short_intro) {
-    html += `<h3>Short Intro</h3>\n<p>${aiData.description_sections.short_intro}</p>\n\n`;
+  // Insert youtube videos right after the intro paragraph
+  if (youtubeVideos) {
+    html += youtubeVideos;
   }
   
   // 2. Specifications Table (inserted right after the Description)
@@ -271,11 +273,11 @@ CRITICAL - NO HALLUCINATIONS:
 - Do not claim a part has features or fitment capabilities that are not explicitly mentioned in the source details.
 
 1. "clean_title": Rewrite the title to be clean, short, customer-friendly, and optimized for SEO ONLY if necessary. If the original title is already good, keep it exactly as is.
-   - When rewriting, use short abbreviations like "LH" and "RH" instead of "Left Hand" or "Right Hand".
-   - CRITICAL: NEVER use the words "Suitable for". Just use "for" (e.g., "for [Series / Model]").
+   - CRITICAL: Do NOT use abbreviations like "LH" or "RH". Always use the full words "Left Hand" and "Right Hand".
+   - CRITICAL: NEVER use the words "Suitable for" or "to Suit". Just use "for" (e.g., "for [Series / Model]").
    - For aftermarket parts, use the structure: "Aftermarket [Part Name] for [Series / Model]".
    - ALWAYS keep the manufacturer branding (like "Toyota" and "LandCruiser") in the title if it exists. Do not drop it.
-   - Example: Original "Aftermarket Left Hand Rear Door for Toyota LandCruiser 60 Series" -> AI Suggested "Aftermarket LH Rear Door for Toyota LandCruiser 60 Series"
+   - Example: Original "Aftermarket LH Rear Door for Toyota LandCruiser 60 Series" -> AI Suggested "Aftermarket Left Hand Rear Door for Toyota LandCruiser 60 Series"
    - Example: Original "Dual Cab Tub Suitable for Toyota Landcruiser" -> AI Suggested "Dual Cab Tub for Toyota Landcruiser"
 
 2. "product_type": Categorize the product into a specific standard customer-facing type / category.
