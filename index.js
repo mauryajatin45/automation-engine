@@ -606,23 +606,6 @@ app.post('/api/admin/create-smart-collection', async (req, res) => {
   }
 });
 
-app.post('/api/debug-reset-database', async (req, res) => {
-  try {
-    if (useMysql && dbPool) {
-      await dbPool.query('TRUNCATE TABLE reviewed_products');
-      await dbPool.query('TRUNCATE TABLE ai_drafts');
-      console.log('✅ MySQL reviewed_products and ai_drafts tables truncated.');
-    }
-    writeStatusTracker({});
-    writeDrafts({});
-    console.log('✅ Local JSON trackers and drafts cleared.');
-    res.json({ success: true, message: "Database reset complete. All products are now in Pending status." });
-  } catch (error) {
-    console.error('Error resetting database:', error.message);
-    res.status(500).json({ error: error.message });
-  }
-});
-
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
