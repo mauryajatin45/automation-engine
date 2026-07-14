@@ -606,6 +606,155 @@ app.post('/api/admin/create-smart-collection', async (req, res) => {
   }
 });
 
+app.post('/api/debug-setup-more-collections', async (req, res) => {
+  try {
+    const productsData = [
+      // Recovery & Air
+      { id: "gid://shopify/Product/10280330101027", type: "Winches", dept: "Recovery & Air" },
+      { id: "gid://shopify/Product/10280314929443", type: "Winches", dept: "Recovery & Air" },
+      { id: "gid://shopify/Product/10280325447971", type: "Winches", dept: "Recovery & Air" },
+      { id: "gid://shopify/Product/10280313061667", type: "Winches", dept: "Recovery & Air" },
+      { id: "gid://shopify/Product/10280334098723", type: "Winches", dept: "Recovery & Air" },
+      { id: "gid://shopify/Product/10280338915619", type: "Winches", dept: "Recovery & Air" },
+      { id: "gid://shopify/Product/10280309358883", type: "Winches", dept: "Recovery & Air" },
+      { id: "gid://shopify/Product/10280351367459", type: "Winches", dept: "Recovery & Air" },
+
+      { id: "gid://shopify/Product/10283138679075", type: "Recovery Gear", dept: "Recovery & Air" },
+      { id: "gid://shopify/Product/10280341700899", type: "Recovery Gear", dept: "Recovery & Air" },
+      { id: "gid://shopify/Product/10285310017827", type: "Recovery Gear", dept: "Recovery & Air" },
+      { id: "gid://shopify/Product/10285311426851", type: "Recovery Gear", dept: "Recovery & Air" },
+      { id: "gid://shopify/Product/10283137696035", type: "Recovery Gear", dept: "Recovery & Air" },
+      { id: "gid://shopify/Product/10280353366307", type: "Recovery Gear", dept: "Recovery & Air" },
+      { id: "gid://shopify/Product/10280349139235", type: "Recovery Gear", dept: "Recovery & Air" },
+      { id: "gid://shopify/Product/10280347336995", type: "Recovery Gear", dept: "Recovery & Air" },
+      { id: "gid://shopify/Product/10280355332387", type: "Recovery Gear", dept: "Recovery & Air" },
+
+      { id: "gid://shopify/Product/10279108116771", type: "Air Compressors", dept: "Recovery & Air" },
+
+      // Suspension Brands
+      { id: "gid://shopify/Product/10283136712995", type: "EFS", dept: "Suspension" },
+      { id: "gid://shopify/Product/10285306773795", type: "EFS", dept: "Suspension" },
+      { id: "gid://shopify/Product/10283138548003", type: "EFS", dept: "Suspension" },
+      { id: "gid://shopify/Product/10283137204515", type: "EFS", dept: "Suspension" },
+      { id: "gid://shopify/Product/10283138973987", type: "EFS", dept: "Suspension" },
+      { id: "gid://shopify/Product/10285309264163", type: "EFS", dept: "Suspension" },
+      { id: "gid://shopify/Product/10285308870947", type: "EFS", dept: "Suspension" },
+      { id: "gid://shopify/Product/10285304807715", type: "EFS", dept: "Suspension" },
+      { id: "gid://shopify/Product/10285313098019", type: "EFS", dept: "Suspension" },
+
+      { id: "gid://shopify/Product/10207088181539", type: "Westralia Springs", dept: "Suspension" },
+      { id: "gid://shopify/Product/10223412904227", type: "Westralia Springs", dept: "Suspension" },
+
+      { id: "gid://shopify/Product/10283128750371", type: "Fulcrum", dept: "Suspension" },
+      { id: "gid://shopify/Product/10283131404579", type: "Fulcrum", dept: "Suspension" },
+      { id: "gid://shopify/Product/10283110695203", type: "Fulcrum", dept: "Suspension" },
+      { id: "gid://shopify/Product/10283118887203", type: "Fulcrum", dept: "Suspension" },
+      { id: "gid://shopify/Product/10283122196771", type: "Fulcrum", dept: "Suspension" },
+      { id: "gid://shopify/Product/10283125670179", type: "Fulcrum", dept: "Suspension" },
+
+      { id: "gid://shopify/Product/10283121574179", type: "Bilstein", dept: "Suspension" },
+
+      // Camping Equipment (The folding chair belongs to Camping Equipment category)
+      { id: "gid://shopify/Product/10285316866339", type: "Camping Equipment", dept: "Camping & Touring" }
+    ];
+
+    const productUpdateMutation = `
+      mutation productUpdate($input: ProductInput!) {
+        productUpdate(input: $input) {
+          product { id }
+          userErrors { message }
+        }
+      }
+    `;
+
+    const metafieldsSetMutation = `
+      mutation metafieldsSet($metafields: [MetafieldsSetInput!]!) {
+        metafieldsSet(metafields: $metafields) {
+          metafields { key }
+          userErrors { message }
+        }
+      }
+    `;
+
+    let updatedCount = 0;
+
+    // 1. Update products sequentially
+    for (const item of productsData) {
+      try {
+        await client.request(productUpdateMutation, {
+          variables: { input: { id: item.id, productType: item.type } }
+        });
+
+        await client.request(metafieldsSetMutation, {
+          variables: {
+            metafields: [{
+              ownerId: item.id,
+              namespace: "custom",
+              key: "product_department",
+              value: item.dept,
+              type: "single_line_text_field"
+            }]
+          }
+        });
+        updatedCount++;
+      } catch (err) {
+        console.error(`Error updating product ${item.id}:`, err.message);
+      }
+      await new Promise(resolve => setTimeout(resolve, 80));
+    }
+
+    // 2. Create the 11 Smart Collections
+    const restClient = new shopify.clients.Rest({ session });
+    const collectionsToCreate = [
+      { title: "Winches", type: "Winches" },
+      { title: "Recovery Gear", type: "Recovery Gear" },
+      { title: "Air Compressors", type: "Air Compressors" },
+      { title: "EFS", type: "EFS" },
+      { title: "Westralia Springs", type: "Westralia Springs" },
+      { title: "Fulcrum", type: "Fulcrum" },
+      { title: "Bilstein", type: "Bilstein" },
+      { title: "Roof Top Tents & Awnings", type: "Roof Top Tents & Awnings" },
+      { title: "Camping Equipment", type: "Camping Equipment" },
+      { title: "Tents", type: "Tents" },
+      { title: "Swags", type: "Swags" }
+    ];
+
+    const created = [];
+    for (const coll of collectionsToCreate) {
+      try {
+        const colRes = await restClient.post({
+          path: 'smart_collections',
+          data: {
+            smart_collection: {
+              title: coll.title,
+              rules: [
+                {
+                  column: "type",
+                  relation: "equals",
+                  condition: coll.type
+                }
+              ],
+              disjunctive: false
+            }
+          }
+        });
+        created.push(colRes.body.smart_collection.title);
+      } catch (err) {
+        console.error(`Error creating collection ${coll.title}:`, err.message);
+      }
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    res.json({
+      success: true,
+      updatedProducts: updatedCount,
+      createdCollections: created
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
