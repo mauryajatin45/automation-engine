@@ -606,6 +606,243 @@ app.post('/api/admin/create-smart-collection', async (req, res) => {
   }
 });
 
+app.post('/api/debug-setup-accessories', async (req, res) => {
+  try {
+    const productsData = [
+      // === Phase 1: Core Clean-up (13 Products) ===
+      // Grilles
+      { id: "gid://shopify/Product/8939636719907", type: "Grilles", dept: "Exterior", tags: [] },
+      { id: "gid://shopify/Product/8939637899555", type: "Grilles", dept: "Exterior", tags: [] },
+      { id: "gid://shopify/Product/9762324578595", type: "Grilles", dept: "Exterior", tags: [] },
+      { id: "gid://shopify/Product/9759925043491", type: "Grilles", dept: "Exterior", tags: [] },
+      { id: "gid://shopify/Product/9759933595939", type: "Grilles", dept: "Exterior", tags: [] },
+      { id: "gid://shopify/Product/10033223368995", type: "Grilles", dept: "Exterior", tags: [] },
+      // UHF Radios
+      { id: "gid://shopify/Product/10279145701667", type: "UHF Radios", dept: "Power & 12V", tags: [] },
+      { id: "gid://shopify/Product/10279143276835", type: "UHF Radios", dept: "Power & 12V", tags: [] },
+      { id: "gid://shopify/Product/10279130300707", type: "UHF Radios", dept: "Power & 12V", tags: [] },
+      // Doors
+      { id: "gid://shopify/Product/10236359213347", type: "Doors", dept: "Exterior", tags: [] },
+      { id: "gid://shopify/Product/10236359508259", type: "Doors", dept: "Exterior", tags: [] },
+      { id: "gid://shopify/Product/10296978309411", type: "Doors", dept: "Exterior", tags: [] },
+      { id: "gid://shopify/Product/10296977326371", type: "Doors", dept: "Exterior", tags: [] },
+
+      // === Phase 2: Accessories Classification (69 Products) ===
+      // 79 Series
+      { id: "gid://shopify/Product/10033561403683", type: "Accessories", dept: "Accessories", tags: ["79-series", "76-series"] },
+      { id: "gid://shopify/Product/10033559863587", type: "Accessories", dept: "Accessories", tags: ["79-series"] },
+      { id: "gid://shopify/Product/10292047708451", type: "Accessories", dept: "Accessories", tags: ["79-series"] },
+      { id: "gid://shopify/Product/10292029456675", type: "Accessories", dept: "Accessories", tags: ["79-series"] },
+      { id: "gid://shopify/Product/10291854836003", type: "Accessories", dept: "Accessories", tags: ["79-series"] },
+      { id: "gid://shopify/Product/9765099143459", type: "Accessories", dept: "Accessories", tags: ["79-series"] },
+      { id: "gid://shopify/Product/9765276811555", type: "Accessories", dept: "Accessories", tags: ["79-series"] },
+      { id: "gid://shopify/Product/9633965211939", type: "Accessories", dept: "Accessories", tags: ["79-series"] },
+      { id: "gid://shopify/Product/9765169037603", type: "Accessories", dept: "Accessories", tags: ["79-series"] },
+
+      // 70 Series (fits all 70, 75, 76, 78, 79)
+      { id: "gid://shopify/Product/9633934901539", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/9759890702627", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/9759864258851", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/9759858032931", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/9759862685987", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/9759897649443", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/9759886573859", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/9762315370787", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/9759902564643", type: "Accessories", dept: "Accessories", tags: ["70-series", "76-series"] },
+      { id: "gid://shopify/Product/9765158420771", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/9765102616867", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/9929538437411", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/9765252530467", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/9765208129827", type: "Accessories", dept: "Accessories", tags: ["70-series", "79-series"] },
+      { id: "gid://shopify/Product/9765086691619", type: "Accessories", dept: "Accessories", tags: ["70-series", "76-series"] },
+      { id: "gid://shopify/Product/9759929270563", type: "Accessories", dept: "Accessories", tags: ["70-series", "79-series"] },
+      { id: "gid://shopify/Product/9765293687075", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/9929541157155", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/9929549709603", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/9929542828323", type: "Accessories", dept: "Accessories", tags: ["70-series", "76-series"] },
+      { id: "gid://shopify/Product/9929553346851", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/9929543680291", type: "Accessories", dept: "Accessories", tags: ["70-series", "76-series"] },
+      { id: "gid://shopify/Product/10033738809635", type: "Accessories", dept: "Accessories", tags: ["70-series", "78-series"] },
+      { id: "gid://shopify/Product/10033250959651", type: "Accessories", dept: "Accessories", tags: ["70-series", "76-series"] },
+      { id: "gid://shopify/Product/10116826497315", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/10120388837667", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/10033739202851", type: "Accessories", dept: "Accessories", tags: ["70-series", "76-series"] },
+      { id: "gid://shopify/Product/10223442526499", type: "Accessories", dept: "Accessories", tags: ["70-series", "76-series", "60-series"] },
+      { id: "gid://shopify/Product/10223456780579", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/10223455502627", type: "Accessories", dept: "Accessories", tags: ["70-series", "78-series", "79-series"] },
+      { id: "gid://shopify/Product/10223452193059", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/1022344427043", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/10223443706147", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/10223455863075", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/10223441051939", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/10223456616739", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/10223484928291", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/10223485583651", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/10223449309475", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/10236166897955", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/10236187410723", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/10290071568675", type: "Accessories", dept: "Accessories", tags: ["70-series", "79-series"] },
+      { id: "gid://shopify/Product/10291894190371", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+      { id: "gid://shopify/Product/10298448118051", type: "Accessories", dept: "Accessories", tags: ["70-series"] },
+
+      // 73 Series
+      { id: "gid://shopify/Product/10033215176995", type: "Accessories", dept: "Accessories", tags: ["73-series"] },
+
+      // 75 Series
+      { id: "gid://shopify/Product/8755174375715", type: "Accessories", dept: "Accessories", tags: ["75-series"] },
+      { id: "gid://shopify/Product/8755174080803", type: "Accessories", dept: "Accessories", tags: ["75-series"] },
+      { id: "gid://shopify/Product/8755175194915", type: "Accessories", dept: "Accessories", tags: ["75-series"] },
+
+      // Multi-Series (76, 78, 100, 105, 200, 300)
+      { id: "gid://shopify/Product/10292011368739", type: "Accessories", dept: "Accessories", tags: ["76-series", "78-series", "200-series", "300-series"] },
+      { id: "gid://shopify/Product/10291986759971", type: "Accessories", dept: "Accessories", tags: ["76-series", "78-series", "200-series", "300-series"] },
+
+      // 200 Series
+      { id: "gid://shopify/Product/10292051312931", type: "Accessories", dept: "Accessories", tags: ["200-series"] },
+
+      // 300 Series
+      { id: "gid://shopify/Product/10292048625955", type: "Accessories", dept: "Accessories", tags: ["300-series"] },
+
+      // Universal / Remaining Accessories (20 products)
+      { id: "gid://shopify/Product/10279104184611", type: "Accessories", dept: "Accessories", tags: [] },
+      { id: "gid://shopify/Product/10297313755427", type: "Accessories", dept: "Accessories", tags: [] },
+      { id: "gid://shopify/Product/10297311592739", type: "Accessories", dept: "Accessories", tags: [] },
+      { id: "gid://shopify/Product/10297333186851", type: "Accessories", dept: "Accessories", tags: [] },
+      { id: "gid://shopify/Product/10285329121571", type: "Accessories", dept: "Accessories", tags: [] },
+      { id: "gid://shopify/Product/10207090704675", type: "Accessories", dept: "Accessories", tags: ["40-series"] },
+      { id: "gid://shopify/Product/10033242013987", type: "Accessories", dept: "Accessories", tags: ["40-series"] },
+      { id: "gid://shopify/Product/10033250500899", type: "Accessories", dept: "Accessories", tags: ["40-series"] },
+      { id: "gid://shopify/Product/10033226285347", type: "Accessories", dept: "Accessories", tags: ["40-series"] },
+      { id: "gid://shopify/Product/10033242308899", type: "Accessories", dept: "Accessories", tags: ["40-series"] }
+    ];
+
+    const productUpdateMutation = `
+      mutation productUpdate($input: ProductInput!) {
+        productUpdate(input: $input) {
+          product { id }
+          userErrors { message }
+        }
+      }
+    `;
+
+    const metafieldsSetMutation = `
+      mutation metafieldsSet($metafields: [MetafieldsSetInput!]!) {
+        metafieldsSet(metafields: $metafields) {
+          metafields { key }
+          userErrors { message }
+        }
+      }
+    `;
+
+    const tagsAddMutation = `
+      mutation tagsAdd($id: ID!, $tags: [String!]!) {
+        tagsAdd(id: $id, tags: $tags) {
+          node { id }
+          userErrors { message }
+        }
+      }
+    `;
+
+    let updatedCount = 0;
+
+    // 1. Update products sequentially (Type, Metafields, and Tags)
+    for (const item of productsData) {
+      try {
+        await client.request(productUpdateMutation, {
+          variables: { input: { id: item.id, productType: item.type } }
+        });
+
+        if (item.dept) {
+          await client.request(metafieldsSetMutation, {
+            variables: {
+              metafields: [{
+                ownerId: item.id,
+                namespace: "custom",
+                key: "product_department",
+                value: item.dept,
+                type: "single_line_text_field"
+              }]
+            }
+          });
+        }
+
+        if (item.tags.length > 0) {
+          await client.request(tagsAddMutation, {
+            variables: { id: item.id, tags: item.tags }
+          });
+        }
+
+        updatedCount++;
+      } catch (err) {
+        console.error(`Error updating product ${item.id}:`, err.message);
+      }
+      await new Promise(resolve => setTimeout(resolve, 80));
+    }
+
+    const restClient = new shopify.clients.Rest({ session });
+    const created = [];
+
+    // 2. Create Parent Collection
+    try {
+      const parentCol = await restClient.post({
+        path: 'smart_collections',
+        data: {
+          smart_collection: {
+            title: "LandCruiser Accessories",
+            rules: [{ column: "type", relation: "equals", condition: "Accessories" }],
+            disjunctive: false
+          }
+        }
+      });
+      created.push(parentCol.body.smart_collection.title);
+    } catch (err) {
+      console.error("Error creating parent accessories collection:", err.message);
+    }
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // 3. Create the 7 Sub-collections
+    const subCollections = [
+      { title: "79 Series Accessories", type: "Accessories", tag: "79-series" },
+      { title: "70 Series Accessories", type: "Accessories", tag: "70-series" },
+      { title: "75 Series Accessories", type: "Accessories", tag: "75-series" },
+      { title: "76 Series Accessories", type: "Accessories", tag: "76-series" },
+      { title: "78 Series Accessories", type: "Accessories", tag: "78-series" },
+      { title: "200 Series Accessories", type: "Accessories", tag: "200-series" },
+      { title: "300 Series Accessories", type: "Accessories", tag: "300-series" }
+    ];
+
+    for (const coll of subCollections) {
+      try {
+        const colRes = await restClient.post({
+          path: 'smart_collections',
+          data: {
+            smart_collection: {
+              title: coll.title,
+              rules: [
+                { column: "type", relation: "equals", condition: coll.type },
+                { column: "tag", relation: "equals", condition: coll.tag }
+              ],
+              disjunctive: false
+            }
+          }
+        });
+        created.push(colRes.body.smart_collection.title);
+      } catch (err) {
+        console.error(`Error creating sub-collection ${coll.title}:`, err.message);
+      }
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    res.json({
+      success: true,
+      updatedProducts: updatedCount,
+      createdCollections: created
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
