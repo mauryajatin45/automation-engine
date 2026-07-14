@@ -606,6 +606,108 @@ app.post('/api/admin/create-smart-collection', async (req, res) => {
   }
 });
 
+app.post('/api/debug-setup-solar-power', async (req, res) => {
+  try {
+    const productId = "gid://shopify/Product/10285330563363";
+
+    // 1. Update product type to "Solar & Power"
+    const productUpdateMutation = `
+      mutation productUpdate($input: ProductInput!) {
+        productUpdate(input: $input) {
+          product {
+            id
+            productType
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }
+    `;
+    const updateRes = await client.request(productUpdateMutation, {
+      variables: {
+        input: {
+          id: productId,
+          productType: "Solar & Power"
+        }
+      }
+    });
+
+    if (updateRes.data.productUpdate.userErrors.length > 0) {
+      return res.status(400).json({ error: "Failed to update product type", details: updateRes.data.productUpdate.userErrors });
+    }
+
+    // 2. Update metafields (custom.product_department and custom.vehicle_series)
+    const metafieldsSetMutation = `
+      mutation metafieldsSet($metafields: [MetafieldsSetInput!]!) {
+        metafieldsSet(metafields: $metafields) {
+          metafields {
+            key
+            value
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }
+    `;
+    const metaRes = await client.request(metafieldsSetMutation, {
+      variables: {
+        metafields: [
+          {
+            ownerId: productId,
+            namespace: "custom",
+            key: "product_department",
+            value: "Power & 12V",
+            type: "single_line_text_field"
+          },
+          {
+            ownerId: productId,
+            namespace: "custom",
+            key: "vehicle_series",
+            value: "Universal",
+            type: "single_line_text_field"
+          }
+        ]
+      }
+    });
+
+    if (metaRes.data.metafieldsSet.userErrors.length > 0) {
+      return res.status(400).json({ error: "Failed to set metafields", details: metaRes.data.metafieldsSet.userErrors });
+    }
+
+    // 3. Create the smart collection "Solar & Power"
+    const restClient = new shopify.clients.Rest({ session });
+    const collectionRes = await restClient.post({
+      path: 'smart_collections',
+      data: {
+        smart_collection: {
+          title: "Solar & Power",
+          rules: [
+            {
+              column: "type",
+              relation: "equals",
+              condition: "Solar & Power"
+            }
+          ],
+          disjunctive: false
+        }
+      }
+    });
+
+    res.json({
+      success: true,
+      product: updateRes.data.productUpdate.product,
+      metafields: metaRes.data.metafieldsSet.metafields,
+      collection: collectionRes.body.smart_collection
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
