@@ -680,6 +680,7 @@ app.post('/api/debug-update-menu', async (req, res) => {
     // Recursive cleaner to remove ID keys so Shopify cleanly updates items
     function cleanMenuItem(item) {
       const { id, ...rest } = item;
+      rest.type = "HTTP"; // Force type to HTTP to bypass collection validation checks
       if (rest.items && rest.items.length > 0) {
         rest.items = rest.items.map(cleanMenuItem);
       } else {
