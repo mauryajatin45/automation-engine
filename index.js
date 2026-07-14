@@ -642,6 +642,191 @@ app.get('/api/debug-get-menu', async (req, res) => {
   }
 });
 
+app.post('/api/debug-update-menu', async (req, res) => {
+  try {
+    // 1. Fetch current menu items
+    const query = `
+      query {
+        menu(id: "gid://shopify/Menu/311189995811") {
+          id
+          title
+          items {
+            id
+            title
+            url
+            type
+            items {
+              id
+              title
+              url
+              type
+              items {
+                id
+                title
+                url
+                type
+              }
+            }
+          }
+        }
+      }
+    `;
+    const getRes = await client.request(query);
+    const menuData = getRes.data.menu;
+    if (!menuData) {
+      return res.status(404).json({ error: "Menu not found" });
+    }
+
+    // Recursive cleaner to remove ID keys so Shopify cleanly updates items
+    function cleanMenuItem(item) {
+      const { id, ...rest } = item;
+      if (rest.items && rest.items.length > 0) {
+        rest.items = rest.items.map(cleanMenuItem);
+      } else {
+        rest.items = []; // ensure items is present and empty if none
+      }
+      return rest;
+    }
+
+    const cleanedItems = menuData.items.map(cleanMenuItem);
+
+    // 2. Define the new submenus structure requested by the user
+    const newCategorySubmenuItems = [
+      {
+        title: "Toyota Landcruiser",
+        url: "/collections/toyota-landcruiser",
+        type: "HTTP",
+        items: [
+          { title: "Doors", url: "/collections/doors", type: "HTTP", items: [] },
+          { title: "Cabin", url: "/collections/cabin", type: "HTTP", items: [] },
+          { title: "Bonnets", url: "/collections/bonnets", type: "HTTP", items: [] },
+          { title: "Guards & Supports", url: "/collections/guards-supports", type: "HTTP", items: [] },
+          { title: "Tubs", url: "/collections/tubs", type: "HTTP", items: [] },
+          { title: "Grilles", url: "/collections/grilles", type: "HTTP", items: [] },
+          { title: "Suspension", url: "/collections/suspension", type: "HTTP", items: [] },
+          { title: "Differentials & Lockers", url: "/collections/differentials-lockers", type: "HTTP", items: [] },
+          { title: "Lighting", url: "/collections/lighting", type: "HTTP", items: [] },
+          { title: "LandCruiser Accessories", url: "/collections/landcruiser-accessories", type: "HTTP", items: [] }
+        ]
+      },
+      {
+        title: "Power & 12V",
+        url: "/collections/power-12v",
+        type: "HTTP",
+        items: [
+          { title: "12V Accessories", url: "/collections/12v-accessories", type: "HTTP", items: [] },
+          { title: "Batteries", url: "/collections/batteries", type: "HTTP", items: [] },
+          { title: "Solar & Power", url: "/collections/solar-power", type: "HTTP", items: [] },
+          { title: "12V Lighting", url: "/collections/12v-lighting", type: "HTTP", items: [] },
+          { title: "UHF Radios", url: "/collections/uhf-radios", type: "HTTP", items: [] },
+          { title: "Throttle Controllers", url: "/collections/throttle-controllers", type: "HTTP", items: [] }
+        ]
+      },
+      {
+        title: "Recovery & Air",
+        url: "/collections/recovery-air",
+        type: "HTTP",
+        items: [
+          { title: "Winches", url: "/collections/winches", type: "HTTP", items: [] },
+          { title: "Recovery Gear", url: "/collections/recovery-gear", type: "HTTP", items: [] },
+          { title: "Air Compressors", url: "/collections/air-compressors", type: "HTTP", items: [] }
+        ]
+      },
+      {
+        title: "Suspension",
+        url: "/collections/suspension",
+        type: "HTTP",
+        items: [
+          { title: "EFS", url: "/collections/efs", type: "HTTP", items: [] },
+          { title: "Westralia Springs", url: "/collections/westralia-springs", type: "HTTP", items: [] },
+          { title: "Fulcrum", url: "/collections/fulcrum", type: "HTTP", items: [] },
+          { title: "Bilstein", url: "/collections/bilstein", type: "HTTP", items: [] }
+        ]
+      },
+      {
+        title: "Camping & Touring",
+        url: "/collections/camping-touring",
+        type: "HTTP",
+        items: [
+          { title: "Roof Top Tents & Awnings", url: "/collections/roof-top-tents-awnings", type: "HTTP", items: [] },
+          { title: "Camping Equipment", url: "/collections/camping-equipment", type: "HTTP", items: [] },
+          { title: "Tents", url: "/collections/tents", type: "HTTP", items: [] },
+          { title: "Swags", url: "/collections/swags", type: "HTTP", items: [] }
+        ]
+      },
+      {
+        title: "Fridges & Cooling",
+        url: "/collections/fridges-cooling",
+        type: "HTTP",
+        items: [
+          { title: "12V Fridges", url: "/collections/12v-fridges", type: "HTTP", items: [] },
+          { title: "Fridge Freezers", url: "/collections/fridge-freezers", type: "HTTP", items: [] },
+          { title: "Fans", url: "/collections/fans", type: "HTTP", items: [] },
+          { title: "Cooling Accessories", url: "/collections/cooling-accessories", type: "HTTP", items: [] }
+        ]
+      },
+      {
+        title: "Lighting",
+        url: "/collections/lighting",
+        type: "HTTP",
+        items: [
+          { title: "Light Bars", url: "/collections/light-bars", type: "HTTP", items: [] },
+          { title: "Work Lights", url: "/collections/work-lights", type: "HTTP", items: [] },
+          { title: "Camp Lights", url: "/collections/camp-lights", type: "HTTP", items: [] },
+          { title: "Headlights", url: "/collections/headlights", type: "HTTP", items: [] },
+          { title: "Tail Lights", url: "/collections/tail-lights", type: "HTTP", items: [] }
+        ]
+      }
+    ];
+
+    // Find "Shop by Category" and replace its items list
+    let updated = false;
+    for (const item of cleanedItems) {
+      if (item.title === "Shop by Category") {
+        item.items = newCategorySubmenuItems;
+        updated = true;
+        break;
+      }
+    }
+
+    if (!updated) {
+      return res.status(400).json({ error: "Could not find 'Shop by Category' menu item in existing structure" });
+    }
+
+    // 3. Save the modified menu tree back to Shopify
+    const updateMutation = `
+      mutation menuUpdate($id: ID!, $title: String!, $items: [MenuItemUpdateInput!]!) {
+        menuUpdate(id: $id, title: $title, items: $items) {
+          menu {
+            id
+            title
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }
+    `;
+
+    const updateRes = await client.request(updateMutation, {
+      variables: {
+        id: menuData.id,
+        title: menuData.title,
+        items: cleanedItems
+      }
+    });
+
+    if (updateRes.data.menuUpdate.userErrors.length > 0) {
+      return res.status(400).json({ errors: updateRes.data.menuUpdate.userErrors });
+    }
+
+    res.json({ success: true, message: `Successfully updated '${menuData.title}' categories and sub-menus.` });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
