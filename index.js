@@ -606,6 +606,154 @@ app.post('/api/admin/create-smart-collection', async (req, res) => {
   }
 });
 
+app.post('/api/debug-update-vehicle-menu', async (req, res) => {
+  try {
+    // 1. Fetch current menu items
+    const query = `
+      query {
+        menu(id: "gid://shopify/Menu/311189995811") {
+          id
+          title
+          items {
+            id
+            title
+            url
+            type
+            items {
+              id
+              title
+              url
+              type
+              items {
+                id
+                title
+                url
+                type
+              }
+            }
+          }
+        }
+      }
+    `;
+    const getRes = await client.request(query);
+    const menuData = getRes.data.menu;
+    if (!menuData) {
+      return res.status(404).json({ error: "Menu not found" });
+    }
+
+    // Recursive cleaner to remove ID keys and force type to HTTP to bypass collection checks
+    function cleanMenuItem(item) {
+      const { id, ...rest } = item;
+      rest.type = "HTTP";
+      if (rest.items && rest.items.length > 0) {
+        rest.items = rest.items.map(cleanMenuItem);
+      } else {
+        rest.items = [];
+      }
+      return rest;
+    }
+
+    const cleanedItems = menuData.items.map(cleanMenuItem);
+
+    // 2. Define the new vehicle submenus structure
+    const newVehicleSubmenuItems = [
+      {
+        title: "Toyota",
+        url: "/collections/toyota",
+        type: "HTTP",
+        items: [
+          { title: "Landcruiser 75 Series", url: "/collections/landcruiser-75-series", type: "HTTP", items: [] },
+          { title: "Landcruiser 79 Series", url: "/collections/landcruiser-79-series", type: "HTTP", items: [] },
+          { title: "Landcruiser 60 Series", url: "/collections/landcruiser-60-series", type: "HTTP", items: [] },
+          { title: "Landcruiser 40 Series", url: "/collections/landcruiser-40-series", type: "HTTP", items: [] },
+          { title: "Landcruiser 80 Series", url: "/collections/landcruiser-80-series", type: "HTTP", items: [] },
+          { title: "Hilux N70", url: "/collections/hilux-n70", type: "HTTP", items: [] },
+          { title: "Hilux N80", url: "/collections/hilux-n80", type: "HTTP", items: [] }
+        ]
+      },
+      {
+        title: "Ford",
+        url: "/collections/ford",
+        type: "HTTP",
+        items: [
+          { title: "Ranger", url: "/collections/ranger", type: "HTTP", items: [] }
+        ]
+      },
+      {
+        title: "Isuzu",
+        url: "/collections/isuzu",
+        type: "HTTP",
+        items: [
+          { title: "D Max", url: "/collections/d-max", type: "HTTP", items: [] }
+        ]
+      },
+      {
+        title: "Nissan",
+        url: "/collections/nissan",
+        type: "HTTP",
+        items: [
+          { title: "Patrol", url: "/collections/patrol", type: "HTTP", items: [] },
+          { title: "Navara", url: "/collections/navara", type: "HTTP", items: [] }
+        ]
+      },
+      {
+        title: "BYD",
+        url: "/collections/byd",
+        type: "HTTP",
+        items: [
+          { title: "Shark", url: "/collections/shark", type: "HTTP", items: [] }
+        ]
+      }
+    ];
+
+    // Find "Shop by Vehicle" and replace its items list
+    let updated = false;
+    for (const item of cleanedItems) {
+      if (item.title === "Shop by Vehicle") {
+        item.items = newVehicleSubmenuItems;
+        updated = true;
+        break;
+      }
+    }
+
+    if (!updated) {
+      return res.status(400).json({ error: "Could not find 'Shop by Vehicle' menu item in existing structure" });
+    }
+
+    // 3. Save the modified menu tree back to Shopify
+    const updateMutation = `
+      mutation menuUpdate($id: ID!, $title: String!, $items: [MenuItemUpdateInput!]!) {
+        menuUpdate(id: $id, title: $title, items: $items) {
+          menu {
+            id
+            title
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }
+    `;
+
+    const updateRes = await client.request(updateMutation, {
+      variables: {
+        id: menuData.id,
+        title: menuData.title,
+        items: cleanedItems
+      }
+    });
+
+    if (updateRes.data.menuUpdate.userErrors.length > 0) {
+      return res.status(400).json({ errors: updateRes.data.menuUpdate.userErrors });
+    }
+
+    res.json({ success: true, message: `Successfully updated '${menuData.title}' vehicle makers and sub-menus.` });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
