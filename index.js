@@ -606,6 +606,85 @@ app.post('/api/admin/create-smart-collection', async (req, res) => {
   }
 });
 
+app.post('/api/debug-bulk-update-series', async (req, res) => {
+  try {
+    const csvPath = path.join(__dirname, 'vehicle_series_mapping.csv');
+    if (!fs.existsSync(csvPath)) {
+      return res.status(400).json({ error: 'vehicle_series_mapping.csv not found on server. Please ensure Phase 1 ran successfully.' });
+    }
+
+    const csvContent = fs.readFileSync(csvPath, 'utf8');
+    const lines = csvContent.split('\n').filter(line => line.trim().length > 0);
+    
+    // Remove header
+    lines.shift();
+
+    const updates = [];
+    lines.forEach(line => {
+      // Basic CSV parser to handle quotes and commas inside titles
+      const matches = line.match(/"([^"\\]*(?:\\.[^"\\]*)*)"/g);
+      if (matches && matches.length >= 3) {
+        const id = matches[0].replace(/"/g, '');
+        const series = matches[2].replace(/"/g, '');
+        updates.push({ id, series });
+      }
+    });
+
+    console.log(`🚀 Starting bulk metafield updates for ${updates.length} products on Shopify...`);
+    let successCount = 0;
+    let failCount = 0;
+
+    const mutation = `
+      mutation metafieldsSet($metafields: [MetafieldsSetInput!]!) {
+        metafieldsSet(metafields: $metafields) {
+          metafields {
+            key
+            value
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }
+    `;
+
+    // Process serial updates with 100ms delay to stay within Shopify limits
+    for (const update of updates) {
+      try {
+        const metaRes = await client.request(mutation, {
+          variables: {
+            metafields: [{
+              ownerId: update.id,
+              namespace: "custom",
+              key: "vehicle_series",
+              value: update.series,
+              type: "single_line_text_field"
+            }]
+          }
+        });
+
+        if (metaRes.data.metafieldsSet.userErrors.length > 0) {
+          console.error(`❌ Error setting metafield for ${update.id}:`, metaRes.data.metafieldsSet.userErrors);
+          failCount++;
+        } else {
+          successCount++;
+        }
+      } catch (err) {
+        console.error(`❌ Connection error setting metafield for ${update.id}:`, err.message);
+        failCount++;
+      }
+      // Delay
+      await new Promise(resolve => setTimeout(resolve, 80));
+    }
+
+    res.json({ success: true, total: updates.length, succeeded: successCount, failed: failCount });
+  } catch (error) {
+    console.error('Error running bulk updates:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
