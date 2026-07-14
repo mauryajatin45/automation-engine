@@ -606,32 +606,6 @@ app.post('/api/admin/create-smart-collection', async (req, res) => {
   }
 });
 
-app.post('/api/debug-query-metafields', async (req, res) => {
-  try {
-    const query = `
-      query {
-        metafieldDefinitions(first: 100, ownerType: PRODUCT) {
-          edges {
-            node {
-              id
-              namespace
-              key
-              name
-              type {
-                name
-              }
-            }
-          }
-        }
-      }
-    `;
-    const response = await client.request(query);
-    res.json({ success: true, definitions: response.data.metafieldDefinitions.edges });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
