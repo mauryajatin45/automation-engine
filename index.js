@@ -606,6 +606,124 @@ app.post('/api/admin/create-smart-collection', async (req, res) => {
   }
 });
 
+app.post('/api/debug-setup-fridge-cooling', async (req, res) => {
+  try {
+    const productsData = [
+      // Fridge Freezers
+      { id: "gid://shopify/Product/10285335249187", type: "Fridge Freezers", dept: "Fridges & Cooling" },
+      { id: "gid://shopify/Product/10285325287715", type: "Fridge Freezers", dept: "Fridges & Cooling" },
+      { id: "gid://shopify/Product/10285323944227", type: "Fridge Freezers", dept: "Fridges & Cooling" },
+      { id: "gid://shopify/Product/10285327974691", type: "Fridge Freezers", dept: "Fridges & Cooling" },
+      { id: "gid://shopify/Product/10285326795043", type: "Fridge Freezers", dept: "Fridges & Cooling" },
+
+      // Cooling Accessories
+      { id: "gid://shopify/Product/10285331677475", type: "Cooling Accessories", dept: "Fridges & Cooling" },
+      { id: "gid://shopify/Product/10285331382563", type: "Cooling Accessories", dept: "Fridges & Cooling" }
+    ];
+
+    const productUpdateMutation = `
+      mutation productUpdate($input: ProductInput!) {
+        productUpdate(input: $input) {
+          product { id }
+          userErrors { message }
+        }
+      }
+    `;
+
+    const metafieldsSetMutation = `
+      mutation metafieldsSet($metafields: [MetafieldsSetInput!]!) {
+        metafieldsSet(metafields: $metafields) {
+          metafields { key }
+          userErrors { message }
+        }
+      }
+    `;
+
+    let updatedCount = 0;
+
+    // 1. Update products sequentially
+    for (const item of productsData) {
+      try {
+        await client.request(productUpdateMutation, {
+          variables: { input: { id: item.id, productType: item.type } }
+        });
+
+        await client.request(metafieldsSetMutation, {
+          variables: {
+            metafields: [{
+              ownerId: item.id,
+              namespace: "custom",
+              key: "product_department",
+              value: item.dept,
+              type: "single_line_text_field"
+            }]
+          }
+        });
+        updatedCount++;
+      } catch (err) {
+        console.error(`Error updating product ${item.id}:`, err.message);
+      }
+      await new Promise(resolve => setTimeout(resolve, 80));
+    }
+
+    // 2. Create the 4 Smart Collections
+    const restClient = new shopify.clients.Rest({ session });
+    const collectionsToCreate = [
+      {
+        title: "12V Fridges",
+        rules: [{ column: "type", relation: "equals", condition: "Fridge Freezers" }],
+        disjunctive: false
+      },
+      {
+        title: "Fridge Freezers",
+        rules: [{ column: "type", relation: "equals", condition: "Fridge Freezers" }],
+        disjunctive: false
+      },
+      {
+        title: "Cooling Accessories",
+        rules: [
+          { column: "type", relation: "equals", condition: "Cooling Accessories" },
+          { column: "type", relation: "equals", condition: "Fridge Freezers" }
+        ],
+        disjunctive: true // Match ANY condition
+      },
+      {
+        title: "Fans",
+        rules: [{ column: "type", relation: "equals", condition: "Fans" }],
+        disjunctive: false
+      }
+    ];
+
+    const created = [];
+    for (const coll of collectionsToCreate) {
+      try {
+        const colRes = await restClient.post({
+          path: 'smart_collections',
+          data: {
+            smart_collection: {
+              title: coll.title,
+              rules: coll.rules,
+              disjunctive: coll.disjunctive
+            }
+          }
+        });
+        created.push(colRes.body.smart_collection.title);
+      } catch (err) {
+        console.error(`Error creating collection ${coll.title}:`, err.message);
+      }
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    res.json({
+      success: true,
+      updatedProducts: updatedCount,
+      createdCollections: created
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
