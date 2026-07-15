@@ -643,7 +643,7 @@ app.get('/api/debug-list-all-collections', async (req, res) => {
     res.json({
       success: true,
       count: collections.length,
-      filePath: outputFilePath
+      collections: collections
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
