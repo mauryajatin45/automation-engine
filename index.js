@@ -606,41 +606,6 @@ app.post('/api/admin/create-smart-collection', async (req, res) => {
   }
 });
 
-app.get('/api/debug-list-all-collections', async (req, res) => {
-  try {
-    const query = `
-      query {
-        collections(first: 250) {
-          edges {
-            node {
-              id
-              title
-              handle
-              productsCount {
-                count
-              }
-            }
-          }
-        }
-      }
-    `;
-
-    const response = await client.request(query);
-    const collections = response.data.collections.edges.map(e => e.node);
-
-    // Sort alphabetically by title
-    collections.sort((a, b) => a.title.localeCompare(b.title));
-
-    res.json({
-      success: true,
-      count: collections.length,
-      collections: collections
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
