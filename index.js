@@ -606,6 +606,57 @@ app.post('/api/admin/create-smart-collection', async (req, res) => {
   }
 });
 
+app.get('/api/debug-check-duplicates', async (req, res) => {
+  try {
+    const query = `
+      query {
+        collections(first: 250) {
+          edges {
+            node {
+              id
+              title
+              handle
+              productsCount {
+                count
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const response = await client.request(query);
+    const collections = response.data.collections.edges.map(e => e.node);
+
+    const titleMap = {};
+    collections.forEach(col => {
+      const titleLower = col.title.trim().toLowerCase();
+      if (!titleMap[titleLower]) {
+        titleMap[titleLower] = [];
+      }
+      titleMap[titleLower].push(col);
+    });
+
+    const duplicates = {};
+    let duplicateCount = 0;
+    for (const [title, list] of Object.entries(titleMap)) {
+      if (list.length > 1) {
+        duplicates[list[0].title] = list;
+        duplicateCount++;
+      }
+    }
+
+    res.json({
+      success: true,
+      totalCollections: collections.length,
+      duplicateGroupsCount: duplicateCount,
+      duplicates: duplicates
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
