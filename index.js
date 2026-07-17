@@ -606,6 +606,39 @@ app.post('/api/admin/create-smart-collection', async (req, res) => {
   }
 });
 
+app.get('/api/debug-get-doors', async (req, res) => {
+  try {
+    const query = `
+      query {
+        collection(id: "gid://shopify/Collection/507238154531") {
+          title
+          products(first: 100) {
+            edges {
+              node {
+                id
+                title
+                productType
+                tags
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const response = await client.request(query);
+    const products = response.data.collection.products.edges.map(e => e.node);
+
+    res.json({
+      success: true,
+      count: products.length,
+      products: products
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
