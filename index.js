@@ -606,6 +606,86 @@ app.post('/api/admin/create-smart-collection', async (req, res) => {
   }
 });
 
+app.get('/api/debug-register-webhooks', async (req, res) => {
+  try {
+    const callbackUrl = process.env.HOST || "https://truckauto.project.terzettoo.com";
+    const createUrl = callbackUrl.replace(/\/$/, '') + '/webhooks/products-create';
+    const updateUrl = callbackUrl.replace(/\/$/, '') + '/webhooks/products-update';
+
+    const WEBHOOK_CREATE_MUTATION = `
+      mutation webhookSubscriptionCreate($topic: WebhookSubscriptionTopic!, $webhookSubscription: WebhookSubscriptionInput!) {
+        webhookSubscriptionCreate(topic: $topic, webhookSubscription: $webhookSubscription) {
+          webhookSubscription { id topic }
+          userErrors { message }
+        }
+      }
+    `;
+
+    const GET_WEBHOOKS_QUERY = `
+      query {
+        webhookSubscriptions(first: 50) {
+          edges {
+            node {
+              id
+              topic
+              endpoint {
+                __typename
+                ... on WebhookHttpEndpoint {
+                  callbackUrl
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const getRes = await client.request(GET_WEBHOOKS_QUERY);
+    const existingWebhooks = getRes.data.webhookSubscriptions.edges;
+
+    const topicsToRegister = [
+      { topic: 'PRODUCTS_CREATE', url: createUrl },
+      { topic: 'PRODUCTS_UPDATE', url: updateUrl }
+    ];
+
+    const results = [];
+
+    for (const item of topicsToRegister) {
+      const existing = existingWebhooks.find(
+        edge => edge.node.topic === item.topic
+      );
+
+      if (existing && existing.node.endpoint.callbackUrl === item.url) {
+        results.push({ topic: item.topic, status: "already_registered", url: item.url });
+        continue;
+      }
+
+      const registerRes = await client.request(WEBHOOK_CREATE_MUTATION, {
+        variables: {
+          topic: item.topic,
+          webhookSubscription: {
+            callbackUrl: item.url,
+            format: 'JSON'
+          }
+        }
+      });
+
+      if (registerRes.data.webhookSubscriptionCreate.userErrors.length > 0) {
+        results.push({ topic: item.topic, status: "error", errors: registerRes.data.webhookSubscriptionCreate.userErrors });
+      } else {
+        results.push({ topic: item.topic, status: "registered", url: item.url });
+      }
+    }
+
+    res.json({
+      success: true,
+      webhooks: results
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
