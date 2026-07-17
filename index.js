@@ -638,6 +638,34 @@ app.post('/webhooks/products-create', verifyShopifyWebhook, (req, res) => {
   res.status(200).send('OK');
 });
 
+// Shopify Webhook: Product Updated
+app.post('/webhooks/products-update', verifyShopifyWebhook, (req, res) => {
+  const shopifyProduct = req.body;
+  if (!shopifyProduct || !shopifyProduct.id) {
+    console.error('❌ Webhook received with empty or invalid body');
+    return res.status(400).send('Invalid payload');
+  }
+
+  const productId = `gid://shopify/Product/${shopifyProduct.id}`;
+  console.log(`📡 Webhook received for updated product: ${productId} ("${shopifyProduct.title}")`);
+
+  // Process product enrichment and categorization in the background
+  enrichProduct(client, openai, productId, false)
+    .then(success => {
+      if (success) {
+        console.log(`✅ Webhook processing completed successfully for updated ${productId}`);
+      } else {
+        console.log(`❌ Webhook processing skipped or failed for updated ${productId}`);
+      }
+    })
+    .catch(err => {
+      console.error(`❌ Webhook processing error for updated ${productId}:`, err);
+    });
+
+  // Acknowledge receipt of webhook immediately to Shopify (within 5 seconds)
+  res.status(200).send('OK');
+});
+
 // OAuth: Step 1 - Begin Auth
 app.get('/auth', async (req, res) => {
   try {

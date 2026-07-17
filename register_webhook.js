@@ -79,55 +79,59 @@ async function registerWebhook() {
     process.exit(1);
   }
 
-  // Ensure url ends with /webhooks/products-create if not already present
-  if (!callbackUrl.endsWith('/webhooks/products-create')) {
-    callbackUrl = callbackUrl.replace(/\/$/, '') + '/webhooks/products-create';
-  }
+  const baseUrl = callbackUrl.replace(/\/webhooks\/products-create$/, '').replace(/\/$/, '');
+  const createUrl = baseUrl + '/webhooks/products-create';
+  const updateUrl = baseUrl + '/webhooks/products-update';
 
-  console.log(`🌐 Registering PRODUCTS_CREATE webhook pointing to: ${callbackUrl}`);
+  console.log(`🌐 Registering webhooks pointing to:\n   - Create: ${createUrl}\n   - Update: ${updateUrl}`);
 
   try {
-    // 1. Fetch existing webhooks to see if it already exists
+    // 1. Fetch existing webhooks
     const getRes = await client.request(GET_WEBHOOKS_QUERY);
     const existingWebhooks = getRes.data.webhookSubscriptions.edges;
-    
-    const existingProductsCreate = existingWebhooks.find(
-      edge => edge.node.topic === 'PRODUCTS_CREATE'
-    );
 
-    if (existingProductsCreate) {
-      console.log(`⚠️ A webhook for PRODUCTS_CREATE is already registered:`);
-      console.log(`   ID: ${existingProductsCreate.node.id}`);
-      console.log(`   Endpoint: ${existingProductsCreate.node.endpoint.callbackUrl}`);
-      console.log(`💡 If you want to update it, you can delete it first or register a new one.`);
-      
-      if (existingProductsCreate.node.endpoint.callbackUrl === callbackUrl) {
-        console.log('✅ The registered webhook URL matches the target URL. Nothing to do!');
-        return;
-      }
-      
-      console.log('🔄 The registered URL is different. Updating webhook...');
-    }
+    const topicsToRegister = [
+      { topic: 'PRODUCTS_CREATE', url: createUrl },
+      { topic: 'PRODUCTS_UPDATE', url: updateUrl }
+    ];
 
-    // 2. Register Webhook
-    const res = await client.request(WEBHOOK_CREATE_MUTATION, {
-      variables: {
-        topic: 'PRODUCTS_CREATE',
-        webhookSubscription: {
-          callbackUrl: callbackUrl,
-          format: 'JSON'
+    for (const item of topicsToRegister) {
+      const existing = existingWebhooks.find(
+        edge => edge.node.topic === item.topic
+      );
+
+      if (existing) {
+        console.log(`⚠️ A webhook for ${item.topic} is already registered:`);
+        console.log(`   ID: ${existing.node.id}`);
+        console.log(`   Endpoint: ${existing.node.endpoint.callbackUrl}`);
+        
+        if (existing.node.endpoint.callbackUrl === item.url) {
+          console.log(`✅ The registered webhook URL for ${item.topic} matches the target URL. Skipping.`);
+          continue;
         }
+        console.log(`🔄 The registered URL for ${item.topic} is different. Registering new endpoint...`);
       }
-    });
 
-    if (res.data.webhookSubscriptionCreate.userErrors.length > 0) {
-      console.error('❌ Error registering webhook:', res.data.webhookSubscriptionCreate.userErrors);
-    } else {
-      const sub = res.data.webhookSubscriptionCreate.webhookSubscription;
-      console.log(`✅ Success! Webhook registered successfully.`);
-      console.log(`   ID: ${sub.id}`);
-      console.log(`   Topic: ${sub.topic}`);
-      console.log(`   Endpoint: ${sub.endpoint.callbackUrl}`);
+      // 2. Register Webhook
+      const res = await client.request(WEBHOOK_CREATE_MUTATION, {
+        variables: {
+          topic: item.topic,
+          webhookSubscription: {
+            callbackUrl: item.url,
+            format: 'JSON'
+          }
+        }
+      });
+
+      if (res.data.webhookSubscriptionCreate.userErrors.length > 0) {
+        console.error(`❌ Error registering webhook for ${item.topic}:`, res.data.webhookSubscriptionCreate.userErrors);
+      } else {
+        const sub = res.data.webhookSubscriptionCreate.webhookSubscription;
+        console.log(`✅ Success! Webhook registered successfully.`);
+        console.log(`   ID: ${sub.id}`);
+        console.log(`   Topic: ${sub.topic}`);
+        console.log(`   Endpoint: ${sub.endpoint.callbackUrl}`);
+      }
     }
 
   } catch (error) {

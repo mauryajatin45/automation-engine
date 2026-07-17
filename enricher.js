@@ -284,7 +284,7 @@ CRITICAL - NO HALLUCINATIONS:
 2. "product_type": Categorize the product into a specific standard customer-facing type / category.
    - Use clean, user-friendly, pluralized category names.
    - CRITICAL: Never use generic category names like "Accessories", "Parts", "Vehicle Parts", or "Solar" as a product_type. You must select from the following specific, descriptive category names:
-     * "Doors", "Bonnets", "Guards & Supports", "Tubs", "Cabins & Supports", "Suspension", "Lighting", "Differentials & Lockers", "Recovery Gear", "Electrical", "Fridge/Freezers", "Batteries", "Solar & Power", "Camping", "Interior", "Exterior", "UHF Radios & Antennas", "Tow Balls", "Tow Ball Mounts", "Winch Accessories", "Tyre Deflators".
+     * "Doors", "Bonnets", "Guards & Supports", "Tubs", "Cabins & Supports", "Suspension", "Lighting", "Differentials & Lockers", "Grilles", "Glass", "Panels", "12V Accessories", "Batteries", "Solar & Power", "12V Lighting", "UHF Radios", "Throttle Controllers", "Fridge Freezers", "Cooling Accessories", "Fans", "12V Fridges", "Camping Equipment", "Recovery Gear", "Air Compressors", "Winches".
 
 3. "specifications": Generate a comprehensive list of technical specifications and features for this product as a key-value object (flat JSON object). 
    - ALWAYS include "Brand" (extract or infer, default to "Track Auto" if unknown).
@@ -296,11 +296,11 @@ CRITICAL - NO HALLUCINATIONS:
 4. "is_vehicle_specific": Boolean. Set to true if the product is specific to a particular vehicle make/model/series. Set to false if it is universal or generic (e.g. tow balls, tyre deflators, universal fridge slides).
 
 5. "core_metafields": Populate the 5 key vehicle fitment/department fields for navigation and automated collection filters:
-   - "vehicle_make": The manufacturer (e.g., "Toyota", "Nissan", "Ford", "Mahindra", "Iszuzu", "Mazda"). Set to "Universal" if is_vehicle_specific is false.
+   - "vehicle_make": The manufacturer (e.g., "Toyota", "Nissan", "Ford", "Mahindra", "Isuzu", "Mazda"). Set to "Universal" if is_vehicle_specific is false.
    - "vehicle_model": The model (e.g., "LandCruiser", "Hilux", "Patrol", "Ranger", "Pik Up", "BT-50"). Set to "Universal" if is_vehicle_specific is false.
-   - "vehicle_series": Array of strings representing all compatible series/platforms (e.g. ["79 Series"], ["60 Series"], ["MQ", "MR"], ["Next-Gen T6.2"], ["2006 - ON"]). Set to ["Universal"] if is_vehicle_specific is false.
-     * CRITICAL: If a product is compatible with multiple series (e.g., "70, 75, 78, 79 Series"), list ALL of them in this array.
-   - "product_department": Top-level navigation category. You MUST select exactly one of: "Vehicle Parts" (for doors, bonnets, suspension, lighting, grilles, recovery gear), "Power & 12V" (for batteries, generators, chargers, electrical accessories), "Solar" (for solar panels, solar controllers), "Camping & Touring" (for fridges, folding chairs, camping gear).
+   - "vehicle_series": Array of strings representing all compatible series/platforms. You MUST use the standard names: "40 Series", "60 Series", "70 Series", "73 Series", "75 Series", "76 Series", "78 Series", "79 Series", "80 Series", "200 Series", "300 Series". Set to ["Universal"] if is_vehicle_specific is false.
+     * CRITICAL: If a product fits multiple series (e.g., "70, 75, 78, 79 Series"), list EACH of them as a separate item in this array, e.g., ["70 Series", "75 Series", "78 Series", "79 Series"]. Do not combine them into a single string.
+   - "product_department": Top-level navigation category. You MUST select exactly one of: "Vehicle Parts", "Power & 12V", "Fridges & Cooling", "Camping Equipment", "Recovery & Air".
    - "fitment_position": Location on the vehicle. Use one of: "Front Left", "Front Right", "Front", "Rear Left", "Rear Right", "Rear", "Pair", "N/A" (if not applicable).
 
 6. "faqs": Generate exactly 3 product-specific Frequently Asked Questions (FAQs) and answers. These must address actual technical restoration, fitment, or installation concerns specific to this item (e.g. transfer of factory latches, safety catch inclusion, gas strut compatibility, hinge alignment, reuse of glass/seals, or wiring modifications). CRITICAL: Never generate basic repetition questions like "What is it made of?" or "Is it rust resistant?". Every FAQ must provide unique technical value. Do not repeat facts from the key features list.
@@ -384,6 +384,12 @@ async function enrichProduct(client, openai, productId, dryRun = true) {
     if (!product) {
       console.error(`❌ Product not found: ${productId}`);
       return false;
+    }
+    
+    // Check if the product description already has a specifications table to avoid loops
+    if (product.descriptionHtml && (product.descriptionHtml.includes('<h3>Specifications</h3>') || product.descriptionHtml.includes('Specifications</h3>'))) {
+      console.log(`ℹ️ Product ${productId} is already enriched (contains Specifications table). Skipping to prevent loops.`);
+      return true;
     }
   } catch (error) {
     console.error('❌ Error fetching product details:', error.message);
