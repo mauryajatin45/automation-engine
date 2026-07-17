@@ -609,73 +609,52 @@ app.post('/api/admin/create-smart-collection', async (req, res) => {
 app.post('/api/debug-set-collection-images', async (req, res) => {
   try {
     const fileId = "43219582877987";
-    
-    // Attempt to query the file details by searching files or querying node
-    const fileQuery = `
-      query {
-        files(first: 50) {
-          edges {
-            node {
-              id
-              ... on MediaImage {
-                image {
-                  url
-                }
-              }
+    let imageUrl = null;
+
+    const nodeQuery = `
+      query($id: ID!) {
+        node(id: $id) {
+          id
+          ... on MediaImage {
+            image {
+              url
             }
+          }
+          ... on GenericFile {
+            url
           }
         }
       }
     `;
-
-    const fileRes = await client.request(fileQuery);
-    const files = fileRes.data.files.edges.map(e => e.node);
     
-    // Find file that contains the fileId
-    const matchingFile = files.find(f => f.id.includes(fileId));
-    
-    if (!matchingFile || !matchingFile.image || !matchingFile.image.url) {
-      // Fallback: Try querying as a direct node or use general search
-      console.warn("⚠️ Could not find file in first 50 files. Attempting direct node query...");
-      
-      const nodeQuery = `
-        query($id: ID!) {
-          node(id: $id) {
-            id
-            ... on MediaImage {
-              image {
-                url
-              }
-            }
-          }
-        }
-      `;
-      
-      // Let's try both MediaImage and GenericFile GID types
-      let directUrl = null;
-      for (const prefix of ["MediaImage", "GenericFile", "File"]) {
-        try {
-          const nodeRes = await client.request(nodeQuery, { variables: { id: `gid://shopify/${prefix}/${fileId}` } });
-          if (nodeRes.data.node && nodeRes.data.node.image && nodeRes.data.node.image.url) {
-            directUrl = nodeRes.data.node.image.url;
-            console.log(`✅ Found URL using prefix ${prefix}: ${directUrl}`);
+    // Let's try MediaImage, GenericFile, and File GID types
+    for (const prefix of ["MediaImage", "GenericFile", "File"]) {
+      try {
+        const nodeRes = await client.request(nodeQuery, { variables: { id: `gid://shopify/${prefix}/${fileId}` } });
+        if (nodeRes.data.node) {
+          if (nodeRes.data.node.image && nodeRes.data.node.image.url) {
+            imageUrl = nodeRes.data.node.image.url;
+            console.log(`✅ Found URL via ${prefix} image field: ${imageUrl}`);
+            break;
+          } else if (nodeRes.data.node.url) {
+            imageUrl = nodeRes.data.node.url;
+            console.log(`✅ Found URL via ${prefix} url field: ${imageUrl}`);
             break;
           }
-        } catch (e) {}
+        }
+      } catch (e) {
+        console.warn(`Direct query for ${prefix} failed:`, e.message);
       }
-      
-      if (!directUrl) {
-        return res.status(400).json({
-          success: false,
-          error: "Could not retrieve image URL for file ID 43219582877987",
-          filesFound: files.map(f => ({ id: f.id, url: f.image?.url }))
-        });
-      }
-      
-      matchingFile = { image: { url: directUrl } };
+    }
+    
+    if (!imageUrl) {
+      // If direct query fails, let's try calling another API or return error
+      return res.status(400).json({
+        success: false,
+        error: "Could not retrieve image URL for file ID 43219582877987 using direct node query."
+      });
     }
 
-    const imageUrl = matchingFile.image.url;
     console.log(`📸 Using Image URL: ${imageUrl}`);
 
     const targetCollections = [
