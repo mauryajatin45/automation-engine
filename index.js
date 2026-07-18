@@ -606,6 +606,187 @@ app.post('/api/admin/create-smart-collection', async (req, res) => {
   }
 });
 
+app.post('/api/run-bulk-seo-update', async (req, res) => {
+  try {
+    const GET_COLLECTIONS = `
+      query getCollections($first: Int!, $after: String) {
+        collections(first: $first, after: $after) {
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+          edges {
+            node {
+              id
+              title
+              description
+              handle
+              seo {
+                title
+                description
+              }
+              products(first: 5) {
+                edges {
+                  node {
+                    title
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const UPDATE_COLLECTION_SEO = `
+      mutation collectionUpdate($input: CollectionInput!) {
+        collectionUpdate(input: $input) {
+          collection {
+            id
+            title
+            seo {
+              title
+              description
+            }
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }
+    `;
+
+    console.log("🚀 Fetching all collections from Shopify...");
+    let hasNextPage = true;
+    let cursor = null;
+    const collections = [];
+
+    while (hasNextPage) {
+      const getRes = await client.request(GET_COLLECTIONS, { variables: { first: 250, after: cursor } });
+      const edges = getRes.data.collections.edges;
+      for (const edge of edges) {
+        collections.push(edge.node);
+      }
+      hasNextPage = getRes.data.collections.pageInfo.hasNextPage;
+      cursor = getRes.data.collections.pageInfo.endCursor;
+    }
+
+    console.log(`📋 Loaded ${collections.length} collections. Processing updates...`);
+    const results = [];
+    let updatedCount = 0;
+    let skippedCount = 0;
+
+    for (const col of collections) {
+      // Skip if already optimized
+      const hasOptimizedTitle = col.seo && col.seo.title && col.seo.title.endsWith(' | Track Auto');
+      const hasOptimizedDesc = col.seo && col.seo.description && col.seo.description.length >= 100;
+      
+      if (hasOptimizedTitle && hasOptimizedDesc) {
+        console.log(`ℹ️ Collection "${col.title}" is already optimized. Skipping...`);
+        skippedCount++;
+        results.push({
+          title: col.title,
+          success: true,
+          skipped: true,
+          title: col.title,
+          seoTitle: col.seo.title,
+          seoDescription: col.seo.description
+        });
+        continue;
+      }
+
+      console.log(`✍️ Generating SEO for Collection: "${col.title}"`);
+      const productTitles = col.products.edges.map(e => e.node.title).join(", ");
+      
+      const prompt = `You are an SEO expert for an online premium 4WD automotive accessories store named "Track Auto".
+Generate a high-conversion search engine optimization (SEO) title and meta description for the following product collection page:
+
+Collection Details:
+- Title: "${col.title}"
+- Description: "${col.description || 'No description available.'}"
+- Sample Products: "${productTitles || 'No products listed yet.'}"
+
+Requirements:
+1. Brand Name: Always use "Track Auto". NEVER use the name "I Love Cruiser" or "iLoveCruiser" in any generated title or description.
+2. SEO Title: Must be between 50 and 60 characters long. It should be compelling, clean, containing keywords, and end with " | Track Auto".
+3. Meta Description: Must be between 120 and 160 characters long. It should summarize the collection, highlight durability/quality, and include a natural Call to Action (CTA) like "Shop today!" or "Browse now!".
+4. Return the output STRICTLY as a JSON object matching this structure:
+{
+  "seoTitle": "example title here",
+  "seoDescription": "example description here"
+}
+
+Make sure the character counts are exactly within the limits.`;
+
+      try {
+        const gptRes = await openai.chat.completions.create({
+          model: 'gpt-4o',
+          messages: [{ role: 'user', content: prompt }],
+          response_format: { type: "json_object" },
+          temperature: 0.3,
+        });
+
+        const responseJson = JSON.parse(gptRes.choices[0].message.content);
+        const seoTitle = responseJson.seoTitle.trim();
+        const seoDescription = responseJson.seoDescription.trim();
+
+        // Update Shopify
+        const updateRes = await client.request(UPDATE_COLLECTION_SEO, {
+          variables: {
+            input: {
+              id: col.id,
+              seo: {
+                title: seoTitle,
+                description: seoDescription
+              }
+            }
+          }
+        });
+
+        const errors = updateRes.data.collectionUpdate.userErrors;
+        if (errors && errors.length > 0) {
+          results.push({
+            title: col.title,
+            success: false,
+            error: errors[0].message
+          });
+        } else {
+          updatedCount++;
+          results.push({
+            title: col.title,
+            success: true,
+            skipped: false,
+            oldTitle: col.seo.title || col.title,
+            oldDesc: col.seo.description || col.description || "(None)",
+            newTitle: seoTitle,
+            newDesc: seoDescription
+          });
+        }
+
+      } catch (err) {
+        results.push({
+          title: col.title,
+          success: false,
+          error: err.message
+        });
+      }
+      // Delay to respect rate limits
+      await new Promise(resolve => setTimeout(resolve, 150));
+    }
+
+    res.json({
+      success: true,
+      total: collections.length,
+      updated: updatedCount,
+      skipped: skippedCount,
+      results: results
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
