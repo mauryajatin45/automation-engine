@@ -606,7 +606,7 @@ app.post('/api/admin/create-smart-collection', async (req, res) => {
   }
 });
 
-app.get('/api/get-menu-copy', async (req, res) => {
+app.get('/api/get-main-menu-copy', async (req, res) => {
   try {
     const query = `
       query {
@@ -619,15 +619,12 @@ app.get('/api/get-menu-copy', async (req, res) => {
               items {
                 title
                 url
-                type
                 items {
                   title
                   url
-                  type
                   items {
                     title
                     url
-                    type
                   }
                 }
               }
