@@ -606,6 +606,214 @@ app.post('/api/admin/create-smart-collection', async (req, res) => {
   }
 });
 
+app.post('/api/transfer-suspension', async (req, res) => {
+  try {
+    const GET_COLLECTIONS_RULES = `
+      query {
+        suspensionColl: collectionByHandle(handle: "suspension-1") {
+          id
+          title
+          ruleSet {
+            rules {
+              column
+              relation
+              condition
+            }
+          }
+        }
+        recoveryColl: collectionByHandle(handle: "recovery-air") {
+          id
+          title
+          ruleSet {
+            rules {
+              column
+              relation
+              condition
+            }
+          }
+        }
+      }
+    `;
+
+    console.log("🚀 Querying collection rules...");
+    const rulesRes = await client.request(GET_COLLECTIONS_RULES);
+    const suspensionColl = rulesRes.data.suspensionColl;
+    const recoveryColl = rulesRes.data.recoveryColl;
+
+    if (!suspensionColl || !recoveryColl) {
+      return res.status(404).json({ error: 'Collections not found by handles suspension-1 and recovery-air' });
+    }
+
+    console.log("Suspension Rules:", JSON.stringify(suspensionColl.ruleSet));
+    console.log("Recovery Rules:", JSON.stringify(recoveryColl.ruleSet));
+
+    // The 4 towbar/towball products to transfer
+    // Let's search for these products first to get their exact IDs and current tags/types
+    const SEARCH_PRODUCTS = `
+      query searchProducts($query: String!) {
+        products(first: 10, query: $query) {
+          edges {
+            node {
+              id
+              title
+              productType
+              tags
+            }
+          }
+        }
+      }
+    `;
+
+    const PRODUCT_UPDATE = `
+      mutation productUpdate($input: ProductInput!) {
+        productUpdate(input: $input) {
+          product {
+            id
+            title
+            tags
+            productType
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }
+    `;
+
+    const COLLECTION_ADD = `
+      mutation collectionAddProducts($id: ID!, $productIds: [ID!]!) {
+        collectionAddProducts(id: $id, productIds: $productIds) {
+          collection {
+            id
+            title
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }
+    `;
+
+    const COLLECTION_REMOVE = `
+      mutation collectionRemoveProducts($id: ID!, $productIds: [ID!]!) {
+        collectionRemoveProducts(id: $id, productIds: $productIds) {
+          collection {
+            id
+            title
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }
+    `;
+
+    const searchRes = await client.request(SEARCH_PRODUCTS, { variables: { query: "title:towbar OR title:'tow bar' OR title:'tow ball' OR title:EFS" } });
+    const allMatchingProducts = searchRes.data.products.edges.map(e => e.node);
+
+    // Filter to the exact 4 products
+    const targetTitles = [
+      "TAG Heavy Duty Towbar EFS to suit Toyota LandCruiser 79 Series (Single/double cab) (08/12-on)",
+      "TAG+ Heavy Duty Towbar EFS -TOYOTA LANDCRUISER UTE 75Series / 79 Series. Single Cab models only 1985-07/2012.",
+      "TAG Chrome Tow Ball EFS - 50mm, 3.5 tonne",
+      "TAG Tow Ball EFS Weight Scale"
+    ];
+
+    const targetProducts = allMatchingProducts.filter(p => targetTitles.includes(p.title));
+    console.log(`Found ${targetProducts.length} target products to transfer.`);
+
+    const results = [];
+
+    // Case 1: Manual Collections
+    // If ruleSet is null, the collections are manual!
+    const isSuspensionManual = !suspensionColl.ruleSet;
+    const isRecoveryManual = !recoveryColl.ruleSet;
+
+    if (isSuspensionManual && isRecoveryManual) {
+      console.log("ℹ️ Both collections are Manual. Using collectionAddProducts/collectionRemoveProducts...");
+      const productIds = targetProducts.map(p => p.id);
+
+      if (productIds.length > 0) {
+        // Add to Recovery & Air
+        const addRes = await client.request(COLLECTION_ADD, { variables: { id: recoveryColl.id, productIds } });
+        // Remove from Suspension
+        const removeRes = await client.request(COLLECTION_REMOVE, { variables: { id: suspensionColl.id, productIds } });
+        
+        results.push({
+          method: "manual_transfer",
+          addedTo: recoveryColl.title,
+          removedFrom: suspensionColl.title,
+          productIds
+        });
+      }
+    } else {
+      // Case 2: Smart Collections
+      // If either collection is automated, we must modify the product properties (Tags/Types)
+      // to make them fall out of the Suspension smart collection filters and into the Recovery smart collection filters.
+      console.log("ℹ️ Collections are Automated/Smart. Updating product tags/types...");
+
+      for (const p of targetProducts) {
+        // Let's adjust tags:
+        // 1. Remove 'Suspension'
+        // 2. Add 'Recovery & Air' or 'Recovery' or 'towing' (based on Recovery collection rules, default to 'Recovery & Air' and 'Recovery')
+        const originalTags = p.tags || [];
+        const newTags = originalTags.filter(t => t.toLowerCase() !== 'suspension');
+        
+        if (!newTags.includes('Recovery & Air')) newTags.push('Recovery & Air');
+        if (!newTags.includes('Recovery Gear')) newTags.push('Recovery Gear');
+        if (!newTags.includes('Recovery')) newTags.push('Recovery');
+
+        // Let's also adjust productType:
+        // Change from 'EFS' or suspension-based type to 'Towing Accessories' or 'Recovery Gear'
+        let newType = p.productType;
+        if (p.title.includes('Towbar') || p.title.includes('Tow Ball')) {
+          newType = "Recovery Gear";
+        }
+
+        console.log(`Updating "${p.title}" tags to:`, newTags, `and productType to:`, newType);
+        
+        const updateRes = await client.request(PRODUCT_UPDATE, {
+          variables: {
+            input: {
+              id: p.id,
+              tags: newTags,
+              productType: newType
+            }
+          }
+        });
+
+        const errors = updateRes.data.productUpdate.userErrors;
+        if (errors && errors.length > 0) {
+          results.push({
+            title: p.title,
+            success: false,
+            error: errors[0].message
+          });
+        } else {
+          results.push({
+            title: p.title,
+            success: true,
+            newTags,
+            newType
+          });
+        }
+      }
+    }
+
+    res.json({
+      success: true,
+      suspensionCollTitle: suspensionColl.title,
+      recoveryCollTitle: recoveryColl.title,
+      results
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
