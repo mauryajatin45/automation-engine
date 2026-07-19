@@ -606,11 +606,11 @@ app.post('/api/admin/create-smart-collection', async (req, res) => {
   }
 });
 
-app.get('/api/get-main-menu-copy', async (req, res) => {
+app.get('/api/get-all-menus', async (req, res) => {
   try {
     const query = `
       query {
-        menus(first: 20) {
+        menus(first: 50) {
           edges {
             node {
               id
@@ -619,12 +619,15 @@ app.get('/api/get-main-menu-copy', async (req, res) => {
               items {
                 title
                 url
+                type
                 items {
                   title
                   url
+                  type
                   items {
                     title
                     url
+                    type
                   }
                 }
               }
