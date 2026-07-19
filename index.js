@@ -606,65 +606,6 @@ app.post('/api/admin/create-smart-collection', async (req, res) => {
   }
 });
 
-app.get('/api/check-suspension', async (req, res) => {
-  try {
-    const QUERY_SUSPENSION = `
-      query getSuspensionCollections {
-        c1: collectionByHandle(handle: "suspension-1") {
-          id
-          title
-          products(first: 250) {
-            edges {
-              node {
-                id
-                title
-                productType
-                tags
-                vendor
-              }
-            }
-          }
-        }
-        c2: collectionByHandle(handle: "suspension") {
-          id
-          title
-          products(first: 250) {
-            edges {
-              node {
-                id
-                title
-                productType
-                tags
-                vendor
-              }
-            }
-          }
-        }
-      }
-    `;
-
-    console.log("🚀 Fetching suspension collections products from Shopify...");
-    const response = await client.request(QUERY_SUSPENSION);
-    
-    const c1Products = response.data.c1 ? response.data.c1.products.edges.map(e => e.node) : [];
-    const c2Products = response.data.c2 ? response.data.c2.products.edges.map(e => e.node) : [];
-
-    res.json({
-      success: true,
-      suspension: {
-        title: response.data.c1 ? response.data.c1.title : "Suspension",
-        products: c1Products
-      },
-      landcruiserSuspension: {
-        title: response.data.c2 ? response.data.c2.title : "Landcruiser Suspension",
-        products: c2Products
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
