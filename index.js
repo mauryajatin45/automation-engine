@@ -610,7 +610,7 @@ app.get('/api/check-suspension', async (req, res) => {
   try {
     const QUERY_SUSPENSION = `
       query getSuspensionCollections {
-        c1: collectionByHandle(handle: "suspension") {
+        c1: collectionByHandle(handle: "suspension-1") {
           id
           title
           products(first: 250) {
@@ -625,7 +625,7 @@ app.get('/api/check-suspension', async (req, res) => {
             }
           }
         }
-        c2: collectionByHandle(handle: "landcruiser-suspension") {
+        c2: collectionByHandle(handle: "suspension") {
           id
           title
           products(first: 250) {
