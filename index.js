@@ -606,6 +606,43 @@ app.post('/api/admin/create-smart-collection', async (req, res) => {
   }
 });
 
+app.get('/api/get-menu-copy', async (req, res) => {
+  try {
+    const query = `
+      query {
+        menus(first: 20) {
+          edges {
+            node {
+              id
+              title
+              handle
+              items {
+                title
+                url
+                type
+                items {
+                  title
+                  url
+                  type
+                  items {
+                    title
+                    url
+                    type
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+    const response = await client.request(query);
+    res.json({ success: true, menus: response.data.menus.edges.map(e => e.node) });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
