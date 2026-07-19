@@ -606,35 +606,36 @@ app.post('/api/admin/create-smart-collection', async (req, res) => {
   }
 });
 
-app.post('/api/run-bulk-rich-descriptions', async (req, res) => {
+app.get('/api/check-suspension', async (req, res) => {
   try {
-    const GET_COLLECTIONS = `
-      query getCollections($first: Int!, $after: String) {
-        collections(first: $first, after: $after) {
-          pageInfo {
-            hasNextPage
-            endCursor
-          }
-          edges {
-            node {
-              id
-              title
-              description
-              handle
+    const QUERY_SUSPENSION = `
+      query getSuspensionCollections {
+        c1: collection(handle: "suspension") {
+          id
+          title
+          products(first: 250) {
+            edges {
+              node {
+                id
+                title
+                productType
+                tags
+                vendor
+              }
             }
           }
         }
-      }
-    `;
-
-    const GET_COLLECTION_PRODUCTS = `
-      query getCollectionProducts($id: ID!, $first: Int!) {
-        collection(id: $id) {
-          products(first: $first) {
+        c2: collection(handle: "landcruiser-suspension") {
+          id
+          title
+          products(first: 250) {
             edges {
               node {
+                id
                 title
                 productType
+                tags
+                vendor
               }
             }
           }
@@ -642,148 +643,22 @@ app.post('/api/run-bulk-rich-descriptions', async (req, res) => {
       }
     `;
 
-    const UPDATE_COLLECTION_DESCRIPTION = `
-      mutation collectionUpdate($input: CollectionInput!) {
-        collectionUpdate(input: $input) {
-          collection {
-            id
-            descriptionHtml
-          }
-          userErrors {
-            field
-            message
-          }
-        }
-      }
-    `;
-
-    console.log("🚀 Fetching all collections from Shopify...");
-    let hasNextPage = true;
-    let cursor = null;
-    const collections = [];
-
-    while (hasNextPage) {
-      const getRes = await client.request(GET_COLLECTIONS, { variables: { first: 250, after: cursor } });
-      const edges = getRes.data.collections.edges;
-      for (const edge of edges) {
-        collections.push(edge.node);
-      }
-      hasNextPage = getRes.data.collections.pageInfo.hasNextPage;
-      cursor = getRes.data.collections.pageInfo.endCursor;
-    }
-
-    console.log(`📋 Loaded ${collections.length} collections. Processing descriptions...`);
-    const results = [];
-    let updatedCount = 0;
-    let skippedCount = 0;
-
-    for (const col of collections) {
-      // Check if already optimized (has Track Auto and length > 100)
-      const hasOptimizedDesc = col.description && col.description.includes('Track Auto') && col.description.length >= 100;
-      
-      if (hasOptimizedDesc) {
-        console.log(`ℹ️ Collection "${col.title}" description is already optimized. Skipping...`);
-        skippedCount++;
-        results.push({
-          title: col.title,
-          success: true,
-          skipped: true,
-          description: col.description
-        });
-        continue;
-      }
-
-      console.log(`✍️ Fetching products for Collection: "${col.title}"`);
-      let productsList = "";
-      let productCount = 0;
-      try {
-        const prodRes = await client.request(GET_COLLECTION_PRODUCTS, { variables: { id: col.id, first: 100 } });
-        const edges = prodRes.data.collection.products.edges;
-        productCount = edges.length;
-        productsList = edges.map((e, idx) => `${idx + 1}. ${e.node.title} (${e.node.productType || 'Part'})`).join("\n");
-      } catch (prodErr) {
-        console.error(`❌ Error fetching products for "${col.title}":`, prodErr.message);
-      }
-
-      if (productCount === 0) {
-        console.log(`⚠️ Collection "${col.title}" has 0 products. Skipping description generation...`);
-        skippedCount++;
-        results.push({
-          title: col.title,
-          success: true,
-          skipped: true,
-          description: col.description || ""
-        });
-        continue;
-      }
-
-      const prompt = `You are an expert copywriter for an online premium 4WD automotive accessories store named "Track Auto".
-Your task is to write an engaging, high-conversion collection page description (short paragraph, 2-3 sentences, 40-70 words) for the collection: "${col.title}".
-
-Here is the COMPLETE list of products currently inside this collection:
-${productsList}
-
-Requirements:
-1. Core Analysis: Analyze the products in the list above. Identify the exact vehicles (e.g. LandCruiser 40, 70, 79 Series, Hilux, Ranger) and parts (e.g. panels, leaf springs, throttle controllers) that are actually present.
-2. Tone: Write in the voice of an experienced Australian 4WD parts specialist talking to a fellow enthusiast.
-3. Strict Accuracy: Only mention vehicles, brands, materials (like steel, alloy), and features that directly correspond to the products in the list. Do not mention suspension if the list only has guards.
-4. Brand Name: Always use "Track Auto". NEVER use "I Love Cruiser" or "iLoveCruiser".
-5. Output format: Return the paragraph as a clean string. Do not wrap in JSON.`;
-
-      try {
-        const gptRes = await openai.chat.completions.create({
-          model: 'gpt-4o',
-          messages: [{ role: 'user', content: prompt }],
-          temperature: 0.5,
-        });
-
-        const generatedDesc = gptRes.choices[0].message.content.trim();
-
-        // Update Shopify
-        const updateRes = await client.request(UPDATE_COLLECTION_DESCRIPTION, {
-          variables: {
-            input: {
-              id: col.id,
-              descriptionHtml: generatedDesc
-            }
-          }
-        });
-
-        const errors = updateRes.data.collectionUpdate.userErrors;
-        if (errors && errors.length > 0) {
-          results.push({
-            title: col.title,
-            success: false,
-            error: errors[0].message
-          });
-        } else {
-          updatedCount++;
-          results.push({
-            title: col.title,
-            success: true,
-            skipped: false,
-            description: generatedDesc,
-            count: productCount
-          });
-        }
-
-      } catch (err) {
-        results.push({
-          title: col.title,
-          success: false,
-          error: err.message
-        });
-      }
-      // Delay to respect rate limits
-      await new Promise(resolve => setTimeout(resolve, 200));
-    }
+    console.log("🚀 Fetching suspension collections products from Shopify...");
+    const response = await client.request(QUERY_SUSPENSION);
+    
+    const c1Products = response.data.c1 ? response.data.c1.products.edges.map(e => e.node) : [];
+    const c2Products = response.data.c2 ? response.data.c2.products.edges.map(e => e.node) : [];
 
     res.json({
       success: true,
-      total: collections.length,
-      updated: updatedCount,
-      skipped: skippedCount,
-      results: results
+      suspension: {
+        title: response.data.c1 ? response.data.c1.title : "Suspension",
+        products: c1Products
+      },
+      landcruiserSuspension: {
+        title: response.data.c2 ? response.data.c2.title : "Landcruiser Suspension",
+        products: c2Products
+      }
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
