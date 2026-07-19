@@ -606,6 +606,27 @@ app.post('/api/admin/create-smart-collection', async (req, res) => {
   }
 });
 
+app.get('/api/list-recommendations-assets', async (req, res) => {
+  try {
+    const restClient = new shopify.clients.Rest({ session });
+    const response = await restClient.get({
+      path: `themes/186366296355/assets`,
+    });
+    const assets = response.body.assets;
+    
+    const matched = assets.filter(a => 
+      a.key.includes('recommend') || 
+      a.key.includes('related') || 
+      a.key.includes('suggest') || 
+      (a.key.startsWith('sections/') && a.key.includes('product'))
+    );
+    
+    res.json({ success: true, assets: matched });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
