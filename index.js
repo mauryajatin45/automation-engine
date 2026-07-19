@@ -608,7 +608,7 @@ app.post('/api/admin/create-smart-collection', async (req, res) => {
 
 app.post('/api/transfer-suspension', async (req, res) => {
   try {
-    const GET_COLLECTIONS_RULES = `
+    const GET_COLLECTIONS_AND_PRODUCTS = `
       query {
         suspensionColl: collectionByHandle(handle: "suspension-1") {
           id
@@ -618,6 +618,16 @@ app.post('/api/transfer-suspension', async (req, res) => {
               column
               relation
               condition
+            }
+          }
+          products(first: 100) {
+            edges {
+              node {
+                id
+                title
+                productType
+                tags
+              }
             }
           }
         }
@@ -635,34 +645,31 @@ app.post('/api/transfer-suspension', async (req, res) => {
       }
     `;
 
-    console.log("🚀 Querying collection rules...");
-    const rulesRes = await client.request(GET_COLLECTIONS_RULES);
-    const suspensionColl = rulesRes.data.suspensionColl;
-    const recoveryColl = rulesRes.data.recoveryColl;
+    console.log("🚀 Fetching collections and current products...");
+    const dataRes = await client.request(GET_COLLECTIONS_AND_PRODUCTS);
+    const suspensionColl = dataRes.data.suspensionColl;
+    const recoveryColl = dataRes.data.recoveryColl;
 
     if (!suspensionColl || !recoveryColl) {
       return res.status(404).json({ error: 'Collections not found by handles suspension-1 and recovery-air' });
     }
 
-    console.log("Suspension Rules:", JSON.stringify(suspensionColl.ruleSet));
-    console.log("Recovery Rules:", JSON.stringify(recoveryColl.ruleSet));
-
+    const currentSuspensionProducts = suspensionColl.products.edges.map(e => e.node);
+    
     // The 4 towbar/towball products to transfer
-    // Let's search for these products first to get their exact IDs and current tags/types
-    const SEARCH_PRODUCTS = `
-      query searchProducts($query: String!) {
-        products(first: 10, query: $query) {
-          edges {
-            node {
-              id
-              title
-              productType
-              tags
-            }
-          }
-        }
-      }
-    `;
+    const targetTitles = [
+      "TAG Heavy Duty Towbar EFS to suit Toyota LandCruiser 79 Series (Single/double cab) (08/12-on)",
+      "TAG+ Heavy Duty Towbar EFS -TOYOTA LANDCRUISER UTE 75Series / 79 Series. Single Cab models only 1985-07/2012.",
+      "TAG Chrome Tow Ball EFS - 50mm, 3.5 tonne",
+      "TAG Tow Ball EFS Weight Scale"
+    ];
+
+    const targetProducts = currentSuspensionProducts.filter(p => {
+      // Direct string matches or partial matching for safety
+      return targetTitles.some(title => p.title.toLowerCase().trim() === title.toLowerCase().trim() || p.title.includes(title));
+    });
+
+    console.log(`Found ${targetProducts.length} target products in the Suspension collection.`);
 
     const PRODUCT_UPDATE = `
       mutation productUpdate($input: ProductInput!) {
@@ -711,24 +718,7 @@ app.post('/api/transfer-suspension', async (req, res) => {
       }
     `;
 
-    const searchRes = await client.request(SEARCH_PRODUCTS, { variables: { query: "title:towbar OR title:'tow bar' OR title:'tow ball' OR title:EFS" } });
-    const allMatchingProducts = searchRes.data.products.edges.map(e => e.node);
-
-    // Filter to the exact 4 products
-    const targetTitles = [
-      "TAG Heavy Duty Towbar EFS to suit Toyota LandCruiser 79 Series (Single/double cab) (08/12-on)",
-      "TAG+ Heavy Duty Towbar EFS -TOYOTA LANDCRUISER UTE 75Series / 79 Series. Single Cab models only 1985-07/2012.",
-      "TAG Chrome Tow Ball EFS - 50mm, 3.5 tonne",
-      "TAG Tow Ball EFS Weight Scale"
-    ];
-
-    const targetProducts = allMatchingProducts.filter(p => targetTitles.includes(p.title));
-    console.log(`Found ${targetProducts.length} target products to transfer.`);
-
     const results = [];
-
-    // Case 1: Manual Collections
-    // If ruleSet is null, the collections are manual!
     const isSuspensionManual = !suspensionColl.ruleSet;
     const isRecoveryManual = !recoveryColl.ruleSet;
 
@@ -750,26 +740,22 @@ app.post('/api/transfer-suspension', async (req, res) => {
         });
       }
     } else {
-      // Case 2: Smart Collections
-      // If either collection is automated, we must modify the product properties (Tags/Types)
-      // to make them fall out of the Suspension smart collection filters and into the Recovery smart collection filters.
       console.log("ℹ️ Collections are Automated/Smart. Updating product tags/types...");
 
       for (const p of targetProducts) {
-        // Let's adjust tags:
-        // 1. Remove 'Suspension'
-        // 2. Add 'Recovery & Air' or 'Recovery' or 'towing' (based on Recovery collection rules, default to 'Recovery & Air' and 'Recovery')
+        // Remove 'Suspension' tag case-insensitively
         const originalTags = p.tags || [];
         const newTags = originalTags.filter(t => t.toLowerCase() !== 'suspension');
         
+        // Add Recovery-related tags
         if (!newTags.includes('Recovery & Air')) newTags.push('Recovery & Air');
         if (!newTags.includes('Recovery Gear')) newTags.push('Recovery Gear');
         if (!newTags.includes('Recovery')) newTags.push('Recovery');
 
         // Let's also adjust productType:
-        // Change from 'EFS' or suspension-based type to 'Towing Accessories' or 'Recovery Gear'
+        // Change from 'EFS' or suspension-based type to 'Recovery Gear'
         let newType = p.productType;
-        if (p.title.includes('Towbar') || p.title.includes('Tow Ball')) {
+        if (p.title.includes('Towbar') || p.title.includes('Tow Ball') || p.title.includes('towball') || p.title.includes('towbar')) {
           newType = "Recovery Gear";
         }
 
