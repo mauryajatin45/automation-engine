@@ -690,20 +690,7 @@ app.post('/webhooks/products-update', verifyShopifyWebhook, (req, res) => {
   }
 
   const productId = `gid://shopify/Product/${shopifyProduct.id}`;
-  console.log(`📡 Webhook received for updated product: ${productId} ("${shopifyProduct.title}")`);
-
-  // Process product enrichment and categorization in the background
-  enrichProduct(client, openai, productId, false)
-    .then(success => {
-      if (success) {
-        console.log(`✅ Webhook processing completed successfully for updated ${productId}`);
-      } else {
-        console.log(`❌ Webhook processing skipped or failed for updated ${productId}`);
-      }
-    })
-    .catch(err => {
-      console.error(`❌ Webhook processing error for updated ${productId}:`, err);
-    });
+  console.log(`📡 Webhook received for updated product: ${productId} ("${shopifyProduct.title}") - Skipping automatic enrichment to prevent drafting active products.`);
 
   // Acknowledge receipt of webhook immediately to Shopify (within 5 seconds)
   res.status(200).send('OK');
